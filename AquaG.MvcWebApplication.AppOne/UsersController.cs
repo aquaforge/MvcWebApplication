@@ -1,30 +1,42 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AquaG.MvcWebApplication.AppOne.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace AquaG.MvcWebApplication.AppOne
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ValuesController : ControllerBase
+    public class UsersController : ControllerBase
     {
+
+        private UserContext db;
+        public UsersController(UserContext context)
+        {
+            db = context;
+        }
+
         // GET: api/<ValuesController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<ActionResult<IEnumerable<dynamic>>> Get()
         {
-            return new string[] { "value1", "value2" };
+            return await db.Users.Select(e => new { Id = e.Id, Email = e.Email }).ToListAsync();
         }
+
 
         // GET api/<ValuesController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public async Task<ActionResult<User>> Get(int id)
         {
-            return "value";
+            User user = await db.Users.FirstOrDefaultAsync(x => x.Id == id);
+            if (user == null) return new ObjectResult(new User());
+            return new ObjectResult(user);
         }
+
+
 
         // POST api/<ValuesController>
         [HttpPost]
