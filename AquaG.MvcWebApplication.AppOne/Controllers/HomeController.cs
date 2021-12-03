@@ -24,7 +24,6 @@ namespace AquaG.MvcWebApplication.AppOne.Controllers
             return View();
         }
 
-        [Authorize]
         public IActionResult About()
         {
             return View();

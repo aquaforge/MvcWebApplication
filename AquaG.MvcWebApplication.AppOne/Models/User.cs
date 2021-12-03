@@ -12,7 +12,7 @@ namespace AquaG.MvcWebApplication.AppOne.Models
         public int Id { get; set; }
         
         [Required]
-        [MaxLength(100)]
+        [EmailAddress]
         public string Email { get; set; }
 
         [Required]
