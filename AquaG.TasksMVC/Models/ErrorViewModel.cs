@@ -1,6 +1,6 @@
 using System;
 
-namespace AquaG.MvcWebApplication.AppOne.Models
+namespace AquaG.TasksMVC.Models
 {
     public class ErrorViewModel
     {

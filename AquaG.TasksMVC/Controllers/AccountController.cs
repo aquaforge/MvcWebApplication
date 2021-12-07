@@ -5,18 +5,19 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using AquaG.MvcWebApplication.AppOne.Models;
-using AquaG.MvcWebApplication.AppOne.ViewModels;
+using AquaG.TasksMVC.Models;
+using AquaG.TasksMVC.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
+using AquaG.TasksDbModel;
 
-namespace AquaG.MvcWebApplication.AppOne.Controllers
+namespace AquaG.TasksMVC.Controllers
 {
     public class AccountController : Controller
     {
-        private UserContext db;
+        private readonly TasksDbContext db;
 
-        public AccountController(UserContext context)
+        public AccountController(TasksDbContext context)
         {
             db = context;
         }
@@ -70,12 +71,11 @@ namespace AquaG.MvcWebApplication.AppOne.Controllers
                 User user = await db.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
                 if (user == null)
                 {
-                    db.Users.Add(new User { Email = model.Email, Password = model.Password });
+                    user = new User { Email = model.Email, Password = model.Password, Caption = model.Caption };
+                    db.Users.Add(user);
                     await db.SaveChangesAsync();
 
                     await Authenticate(user);
-
-
                     return Redirect(GetLocalRedirectString(model.ReturnUrl));
                 }
                 else
@@ -90,14 +90,14 @@ namespace AquaG.MvcWebApplication.AppOne.Controllers
             var claims = new List<Claim>
             {
                 new Claim(ClaimsIdentity.DefaultNameClaimType, user.Email),
-                new Claim( "Id", user.Id.ToString())
+                new Claim( "Id", user.Id.ToString()),
+                new Claim( "UserGuid", user.UserGuid.ToString())
             };
             //string role = User.FindFirst(x => x.Type == ClaimsIdentity.DefaultRoleClaimType).Value;
             //[Authorize(Roles = "admin")]
             //[Authorize(Policy ="OnlyForLondon")]
 
             ClaimsIdentity id = new(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
-            // установка аутентификационных куки
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
         }
 

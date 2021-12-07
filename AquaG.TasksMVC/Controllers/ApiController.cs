@@ -1,4 +1,5 @@
-﻿using AquaG.MvcWebApplication.AppOne.Models;
+﻿using AquaG.TasksMVC.Models;
+using AquaG.TasksDbModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -6,15 +7,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AquaG.MvcWebApplication.AppOne
+namespace AquaG.TasksMVC
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersController : ControllerBase
+    public class ApiController : ControllerBase
     {
 
-        private UserContext db;
-        public UsersController(UserContext context)
+        private TasksDbContext db;
+        public ApiController(TasksDbContext context)
         {
             db = context;
         }

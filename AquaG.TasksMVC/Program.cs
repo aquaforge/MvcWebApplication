@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AquaG.MvcWebApplication.AppOne
+namespace AquaG.TasksMVC
 {
     public class Program
     {

@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="AquaG.TasksDbModel.User">
+    <Position X="3.5" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAAAAAAAAAAQAAAAAAACAAAIAAAAAQA=</HashCode>
+      <FileName>DataModel\User.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AquaG.TasksDbModel.BaseTable">
+    <Position X="0.5" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAACAAAAAAAgAAAAAAAAAAACAAAAAAAACAAAAQAAAAA=</HashCode>
+      <FileName>DataModel\BaseTable.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AquaG.TasksDbModel.Project">
+    <Position X="7" Y="0.75" Width="1.5" />
+    <InheritanceLine Type="AquaG.TasksDbModel.BaseTable" FixedFromPoint="true">
+      <Path>
+        <Point X="1.25" Y="3.517" />
+        <Point X="1.25" Y="3.828" />
+        <Point X="4.167" Y="3.828" Type="JumpStart" />
+        <Point X="4.333" Y="3.828" Type="JumpEnd" />
+        <Point X="7.375" Y="3.828" />
+        <Point X="7.375" Y="3.588" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>EAABAAAAAAAAAAAAEAAAQAgAAAQAAAAAAiAAAAAAAAA=</HashCode>
+      <FileName>DataModel\Project.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="User" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="AquaG.TasksDbModel.TaskInfo">
+    <Position X="7" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAhAAAAAAAAAAAEIAAACAggBAAAABAAAAAAAEAAAAA=</HashCode>
+      <FileName>DataModel\TaskInfo.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="User" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="AquaG.TasksDbModel.TaskNote">
+    <Position X="9.5" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAQEAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DataModel\TaskNote.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="TaskInfo" />
+    </ShowAsAssociation>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

@@ -1,4 +1,5 @@
-using AquaG.MvcWebApplication.AppOne.Models;
+using AquaG.TasksMVC.Models;
+using AquaG.TasksDbModel;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -11,7 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AquaG.MvcWebApplication.AppOne
+namespace AquaG.TasksMVC
 {
     public class Startup
     {
@@ -26,7 +27,7 @@ namespace AquaG.MvcWebApplication.AppOne
         public void ConfigureServices(IServiceCollection services)
         {
             string connection = Configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<UserContext>(options => options.UseSqlServer(connection));
+            services.AddDbContext<TasksDbContext>(options => options.UseSqlServer(connection));
 
             // установка конфигурации подключения
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
