@@ -79,7 +79,24 @@ namespace AquaG.TasksMVC.Controllers
                     return Redirect(GetLocalRedirectString(model.ReturnUrl));
                 }
                 else
-                    ModelState.AddModelError("", "Пользователь уже существует");
+                {
+                    if (user.Password == model.Password)
+                    {
+                        if (user.Caption != model.Caption)
+                        {
+                            user.Caption = model.Caption;
+                            await db.SaveChangesAsync();
+                        }
+
+                        await Authenticate(user);
+                        return Redirect(GetLocalRedirectString(model.ReturnUrl));
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "Пользователь уже существует");
+                    }
+                }
+
             }
             return View(model);
         }
@@ -91,7 +108,8 @@ namespace AquaG.TasksMVC.Controllers
             {
                 new Claim(ClaimsIdentity.DefaultNameClaimType, user.Email),
                 new Claim( "Id", user.Id.ToString()),
-                new Claim( "UserGuid", user.UserGuid.ToString())
+                new Claim( "UserGuid", user.UserGuid.ToString()),
+                new Claim( "Caption", user.Caption)
             };
             //string role = User.FindFirst(x => x.Type == ClaimsIdentity.DefaultRoleClaimType).Value;
             //[Authorize(Roles = "admin")]
