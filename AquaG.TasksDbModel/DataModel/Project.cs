@@ -10,9 +10,7 @@ namespace AquaG.TasksDbModel
 {
     public class Project : BaseTable
     {
-
-        [Required] public int UserID { get; set; }
-        public User User { get; set; }
+        [Required] public User User { get; set; }
 
         public int? ParentId { get; set; }
         public Project Parent { get; set; }
@@ -26,9 +24,9 @@ namespace AquaG.TasksDbModel
 
 
         public Project() { }
-        public Project(int userID, string caption, string description, Project parent) : base(caption, description)
+        public Project(User user, string caption, string description, Project parent) : base(caption, description)
         {
-            UserID = userID;
+            User = user;
             ParentId = parent.Id;
             SubLevelNo = (parent == null)? 0 : parent.SubLevelNo+1;
         }

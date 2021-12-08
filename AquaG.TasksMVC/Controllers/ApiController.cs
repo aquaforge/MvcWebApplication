@@ -30,7 +30,7 @@ namespace AquaG.TasksMVC
 
         // GET api/<ValuesController>/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<User>> Get(int id)
+        public async Task<ActionResult<User>> Get(string id)
         {
             User user = await db.Users.FirstOrDefaultAsync(x => x.Id == id);
             if (user == null) return new ObjectResult(new User());

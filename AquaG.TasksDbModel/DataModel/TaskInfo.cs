@@ -11,8 +11,7 @@ namespace AquaG.TasksDbModel
     public class TaskInfo : BaseTable
     {
 
-        [Required] public int UserID { get; set; }
-        public User User { get; set; }
+        [Required] public User User { get; set; }
 
         public int? ProjectID { get; set; }
 
@@ -21,6 +20,8 @@ namespace AquaG.TasksDbModel
         public DateTime? StartDate { get; set; }
 
         public DateTime? EndDate { get; set; }
+
+        [Required] public bool IsNotifyNeeded { get; set; } = false;
 
         [Required] public ItemImportance Priority { get; set; } = ItemImportance.Normal;
 
@@ -34,9 +35,9 @@ namespace AquaG.TasksDbModel
 
 
         public TaskInfo() { }
-        public TaskInfo(int userID, int? projectID, string caption, string description, DateTime? startDate, DateTime? endDate, ItemImportance priority = ItemImportance.Normal) : base(caption, description)
+        public TaskInfo(User user, int? projectID, string caption, string description, DateTime? startDate, DateTime? endDate, ItemImportance priority = ItemImportance.Normal) : base(caption, description)
         {
-            UserID = userID;
+            User = user;
             ProjectID = projectID;
             StartDate = startDate;
             EndDate = endDate;

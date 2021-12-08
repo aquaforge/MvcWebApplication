@@ -6,10 +6,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Configuration;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 /*
 Install-Package Microsoft.EntityFrameworkCore.Tools
-Add-Migration InitialCreate
+    
 Update-Database
 
 [ForeignKey("CompanyInfoKey")] 
@@ -33,35 +35,41 @@ namespace AquaG.TasksDbModel
 
 
 
-    public class TasksDbContext : DbContext
+    public class TasksDbContext : IdentityDbContext<User>
     {
 
-        public static string GetDefaultDbConnectionString()
-        {
-            string connectionString = "";// ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+        //public static string GetDefaultDbConnectionString()
+        //{
+        //    string connectionString = Configuration.GetConnectionString("DefaultConnection");
 
-            if (string.IsNullOrEmpty(connectionString)) 
-                connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=TaskManaderDB;Trusted_Connection=True;";
-            return connectionString;
+        //    //if (string.IsNullOrEmpty(connectionString)) 
+        //    //    connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=TaskManaderDB;Trusted_Connection=True;";
+        //    return connectionString;
+        //}
+
+        public TasksDbContext() : base()
+        {
+            //Database.EnsureCreated();
         }
 
-        public TasksDbContext() : base() { }
+        public TasksDbContext(DbContextOptions<TasksDbContext> options) : base(options)
+        {
+            Database.EnsureCreated();
+        }
 
-        public TasksDbContext(DbContextOptions<TasksDbContext> options) : base(options) { }
-
-        public DbSet<User> Users { get; set; }
+        //public DbSet<User> Users { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<TaskInfo> TaskInfos { get; set; }
         public DbSet<TaskNote> TaskNotes { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder builder)
-        //	=> builder.UseSqlite(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
-        {
-            string connectionString = GetDefaultDbConnectionString();
-            connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=TaskManaderDB;Trusted_Connection=True;";
+        //protected override void OnConfiguring(DbContextOptionsBuilder builder)
+        ////	=> builder.UseSqlite(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
+        //{
+        //    string connectionString = GetDefaultDbConnectionString();
+        //    //connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=TaskManaderDB;Trusted_Connection=True;";
 
-            Console.WriteLine(connectionString);
-            builder.UseSqlServer(connectionString);
-        }
+        //    Console.WriteLine(connectionString);
+        //    builder.UseSqlServer(connectionString);
+        //}
     }
 }

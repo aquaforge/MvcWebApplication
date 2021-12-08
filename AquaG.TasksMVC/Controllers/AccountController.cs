@@ -10,22 +10,27 @@ using AquaG.TasksMVC.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using AquaG.TasksDbModel;
+using Microsoft.AspNetCore.Identity;
 
 namespace AquaG.TasksMVC.Controllers
 {
     public class AccountController : Controller
     {
         private readonly TasksDbContext db;
+        private readonly UserManager<User> userManager;
+        private readonly SignInManager<User> signInManager;
 
-        public AccountController(TasksDbContext context)
+        public AccountController(TasksDbContext _db, UserManager<User> _userManager, SignInManager<User> _signInManager)
         {
-            db = context;
+            db = _db;
+            userManager = _userManager;
+            signInManager = _signInManager;
         }
 
         [HttpGet]
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            await signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
 
@@ -42,14 +47,15 @@ namespace AquaG.TasksMVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                User user = await db.Users.FirstOrDefaultAsync(u => u.Email == model.Email && u.Password == model.Password);
-                if (user != null)
+                var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
+                if (result.Succeeded)
                 {
-                    await Authenticate(user);
-
                     return Redirect(GetLocalRedirectString(model.ReturnUrl));
                 }
-                ModelState.AddModelError("", "Некорректные логин и(или) пароль");
+                else
+                {
+                    ModelState.AddModelError("", @"Неверные логин и\или пароль");
+                }
             }
             return View(model);
         }
@@ -68,56 +74,57 @@ namespace AquaG.TasksMVC.Controllers
         {
             if (ModelState.IsValid)
             {
+
                 User user = await db.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
                 if (user == null)
                 {
-                    user = new User { Email = model.Email, Password = model.Password, Caption = model.Caption };
-                    db.Users.Add(user);
-                    await db.SaveChangesAsync();
-
-                    await Authenticate(user);
-                    return Redirect(GetLocalRedirectString(model.ReturnUrl));
-                }
-                else
-                {
-                    if (user.Password == model.Password)
+                    user = new User { Email = model.Email, UserName = model.Email };
+                    var result = await userManager.CreateAsync(user, model.Password);
+                    if (result.Succeeded)
                     {
-                        if (user.Caption != model.Caption)
-                        {
-                            user.Caption = model.Caption;
-                            await db.SaveChangesAsync();
-                        }
-
-                        await Authenticate(user);
+                        await signInManager.SignInAsync(user, false);
+                        //await signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
                         return Redirect(GetLocalRedirectString(model.ReturnUrl));
                     }
                     else
                     {
-                        ModelState.AddModelError("", "Пользователь уже существует");
+                        foreach (var error in result.Errors)
+                            ModelState.AddModelError(string.Empty, error.Description);
                     }
                 }
-
+                else
+                {
+                    var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
+                    if (result.Succeeded)
+                    {
+                        return Redirect(GetLocalRedirectString(model.ReturnUrl));
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "Пользователь существует");
+                    }
+                }
             }
             return View(model);
         }
 
-        private async Task Authenticate(User user)
-        {
+        //private async Task Authenticate(User user)
+        //{
 
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimsIdentity.DefaultNameClaimType, user.Email),
-                new Claim( "Id", user.Id.ToString()),
-                new Claim( "UserGuid", user.UserGuid.ToString()),
-                new Claim( "Caption", user.Caption)
-            };
-            //string role = User.FindFirst(x => x.Type == ClaimsIdentity.DefaultRoleClaimType).Value;
-            //[Authorize(Roles = "admin")]
-            //[Authorize(Policy ="OnlyForLondon")]
+        //    var claims = new List<Claim>
+        //{
+        //    new Claim(ClaimsIdentity.DefaultNameClaimType, user.Email),
+        //    new Claim( "Id", user.Id.ToString()),
+        //    new Claim( "UserGuid", user.UserGuid.ToString()),
+        //    new Claim( "Caption", user.Caption)
+        //};
+        //    //string role = User.FindFirst(x => x.Type == ClaimsIdentity.DefaultRoleClaimType).Value;
+        //    //[Authorize(Roles = "admin")]
+        //    //[Authorize(Policy ="OnlyForLondon")]
 
-            ClaimsIdentity id = new(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
-        }
+        //    ClaimsIdentity id = new(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
+        //    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
+        //}
 
         private string GetLocalRedirectString(string returnUrl)
         {

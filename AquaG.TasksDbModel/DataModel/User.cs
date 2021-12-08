@@ -4,27 +4,21 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 
 namespace AquaG.TasksDbModel
 {
-    public class User : BaseTable
+    public class User : IdentityUser
     {
-        [Required] [EmailAddress] public string Email { get; set; }
+        [Required] public DateTime CreationDate { get; set; } = DateTime.Now;
 
-        [Required] [MaxLength(50)] [MinLength(3)] public string Password { get; set; }
+        [Required] public DateTime LastModified { get; set; } = DateTime.Now;
 
-        [Required] public Guid UserGuid { get; set; } = Guid.NewGuid();
+
+        [Required] public bool IsDeleted { get; set; } = false;
 
         public ICollection<Project> Projects { get; set; }
         public ICollection<TaskInfo> Tasks { get; set; }
 
-        public User() { }
-
-        public User(string email, string password, string caption, string description) : base(caption, description)
-        {
-            Email = email;
-            Password = password;
-            Email = email;
-        }
     }
 }
