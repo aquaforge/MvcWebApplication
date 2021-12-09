@@ -1,4 +1,4 @@
-using AquaG.TasksMVC.Models;
+п»їusing AquaG.TasksMVC.Models;
 using AquaG.TasksDbModel;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -13,6 +13,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using AquaG.TasksMVC.Data;
 
 namespace AquaG.TasksMVC
 {
@@ -50,6 +51,9 @@ namespace AquaG.TasksMVC
 
             services.AddControllersWithViews();
             services.AddControllers();
+
+            services.AddDbContext<AquaGTasksMVCContext>(options =>
+                    options.UseSqlServer(Configuration.GetConnectionString("AquaGTasksMVCContext")));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -67,8 +71,8 @@ namespace AquaG.TasksMVC
 
             app.UseRouting();
 
-            app.UseAuthentication();    // аутентификация
-            app.UseAuthorization();     // авторизация
+            app.UseAuthentication();    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+            app.UseAuthorization();     // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
             app.UseEndpoints(endpoints =>
             {

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<AquaG.TasksDbModel.Project>
+﻿@model IEnumerable<AquaG.TasksDbModel.ProjectModel>
 
 @{
     ViewData["Title"] = "Index";
@@ -7,22 +7,13 @@
 <h1>Index</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Edit">Create New</a>
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Parent)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.IsActive)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.OrderId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SubLevelNo)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Caption)
@@ -46,16 +37,7 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Parent.Caption)
-            </td>
-            <td>
                 @Html.DisplayFor(modelItem => item.IsActive)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.OrderId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SubLevelNo)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Caption)

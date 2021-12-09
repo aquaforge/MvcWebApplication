@@ -21,7 +21,7 @@ namespace AquaG.TasksMVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Logout()
         {
-            await PropSignInManager.SignOutAsync();
+            await DI_SignInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
 
@@ -38,7 +38,7 @@ namespace AquaG.TasksMVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await PropSignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
+                var result = await DI_SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
                 if (result.Succeeded)
                 {
                     return Redirect(model.ReturnUrl);
@@ -66,14 +66,14 @@ namespace AquaG.TasksMVC.Controllers
             if (ModelState.IsValid)
             {
 
-                User user = await PropUserManager.FindByEmailAsync(model.Email);
+                User user = await DI_UserManager.FindByEmailAsync(model.Email);
                 if (user == null)
                 {
                     user = new User { Email = model.Email, UserName = model.Email };
-                    var result = await PropUserManager.CreateAsync(user, model.Password);
+                    var result = await DI_UserManager.CreateAsync(user, model.Password);
                     if (result.Succeeded)
                     {
-                        await PropSignInManager.SignInAsync(user, model.RememberMe);
+                        await DI_SignInManager.SignInAsync(user, model.RememberMe);
                         return Redirect(model.ReturnUrl);
                     }
                     else
@@ -84,7 +84,7 @@ namespace AquaG.TasksMVC.Controllers
                 }
                 else
                 {
-                    var result = await PropSignInManager.PasswordSignInAsync(userName: model.Email, password: model.Password,
+                    var result = await DI_SignInManager.PasswordSignInAsync(userName: model.Email, password: model.Password,
                         isPersistent: model.RememberMe, lockoutOnFailure: false);
                     if (result.Succeeded)
                     {

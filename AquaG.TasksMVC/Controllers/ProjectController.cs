@@ -11,149 +11,162 @@ using Microsoft.AspNetCore.Identity;
 
 namespace AquaG.TasksMVC.Controllers
 {
-    //[Authorize(Roles = "admin")]
-    [Authorize]
+
+    [Authorize] //[Authorize(Roles = "admin")]
     public class ProjectController : BaseController
     {
+        private User _authorizedUser;
+        private User GetAuthorizedUser()
+        {
+            if (_authorizedUser == null) _authorizedUser = DI_UserManager.FindByEmailAsync(User.Identity.Name).GetAwaiter().GetResult();
+            return _authorizedUser;
+        }
         public ProjectController() : base() { }
+
+        private ProjectModel GetProjectModelFromDbModel(Project p)
+        {
+            ProjectModel m = new ();
+
+            if (p != null)
+            {
+                m.Id = p.Id;
+                m.Caption = p.Caption;
+                m.Description = p.Description;
+                m.CreationDate = p.CreationDate;
+                m.LastModified = p.LastModified;
+                m.IsActive = p.IsActive;
+                m.IsDeleted = p.IsDeleted;
+            }
+            return m;
+        }
+
+        private void UpdateDbModel(Project p, ProjectModel m)
+        {
+            if (p.Id != m.Id) throw new ArgumentException("обновление не того проекта");
+            p.Caption = m.Caption;
+            p.Description = m.Description;
+            p.LastModified = DateTime.Now;
+            p.IsActive = m.IsActive ?? true;
+            p.IsDeleted = m.IsDeleted ?? false;
+        }
+
+
 
         // GET: Project
         public async Task<IActionResult> Index()
         {
-            User u = await PropUserManager.FindByEmailAsync(User.Identity.Name);
-            var tasksDbContext = PropDb.Projects.Where(p => p.User == u).Include(p => p.Parent);
-            return View(await tasksDbContext.ToListAsync());
-        }
+            User authUser = GetAuthorizedUser();
 
-        // GET: Project/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
+            var projectModels = new List<ProjectModel>();
+
+            var projects = DI_Db.Projects.Where(p => p.User == authUser).OrderByDescending(p => p.LastModified).ToArray();
+            foreach (var p in projects)
             {
-                return NotFound();
+                ProjectModel m = GetProjectModelFromDbModel(p);
+                m.NumberOfTasks = DI_Db.TaskInfos.Where(t => t.ProjectID == p.Id && !t.IsDeleted && !t.IsCompleted).Count();
+                projectModels.Add(m);
             }
 
-            var project = await PropDb.Projects
+            return View(projectModels.ToArray());
+        }
+
+        [Route("Project/{id}")]
+        public async Task<IActionResult> Details(int id)
+        {
+            User authUser = GetAuthorizedUser();
+
+            var project = await DI_Db.Projects
                 .Include(p => p.Parent)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (project == null)
-            {
-                return NotFound();
-            }
+                .Include(p => p.TaskInfo)
+                .FirstOrDefaultAsync(p => p.Id == id && p.User == authUser);
+
+            if (project == null) return NotFound();
 
             return View(project);
         }
 
-        // GET: Projects/Create
-        public IActionResult Create()
+        [HttpGet]
+        public async Task<IActionResult> Edit()
         {
-            ViewData["ParentId"] = new SelectList(PropDb.Projects, "Id", "Caption");
-            return View();
-        }
-
-        // POST: Projects/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ParentId,IsActive,OrderId,SubLevelNo,Id,Caption,Description,CreationDate,LastModified,IsDeleted")] Project project)
-        {
-            if (ModelState.IsValid)
-            {
-                PropDb.Add(project);
-                await PropDb.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["ParentId"] = new SelectList(PropDb.Projects, "Id", "Caption", project.ParentId);
-            return View(project);
+            return await Edit(null);
         }
 
         // GET: Projects/Edit/5
+        [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
+            if (id == null || id == 0)
             {
-                return NotFound();
+                return View(new ProjectModel());
             }
+            else
+            {
+                User authUser = GetAuthorizedUser();
 
-            var project = await PropDb.Projects.FindAsync(id);
-            if (project == null)
-            {
-                return NotFound();
+                Project project = await DI_Db.Projects
+                    .FirstOrDefaultAsync(p => p.Id == id && p.User == authUser);
+                if (project == null) return NotFound();
+
+                return View(GetProjectModelFromDbModel(project));
             }
-            ViewData["ParentId"] = new SelectList(PropDb.Projects, "Id", "Caption", project.ParentId);
-            return View(project);
         }
 
-        // POST: Projects/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ParentId,IsActive,OrderId,SubLevelNo,Id,Caption,Description,CreationDate,LastModified,IsDeleted")] Project project)
+        public async Task<IActionResult> Edit(int id, [Bind("ParentId,IsActive,OrderId,SubLevelNo,Id,Caption,Description,CreationDate,LastModified,IsDeleted")] ProjectModel model)
         {
-            if (id != project.Id)
-            {
-                return NotFound();
-            }
+            if (id != model.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
-                try
+                Project project;
+                if (model.Id != 0)
                 {
-                    PropDb.Update(project);
-                    await PropDb.SaveChangesAsync();
+                    User authUser = GetAuthorizedUser();
+
+                    project = await DI_Db.Projects.FirstOrDefaultAsync(p => p.Id == model.Id && p.User == authUser);
+                    if (project == null) return NotFound();
                 }
-                catch (DbUpdateConcurrencyException)
+                else
                 {
-                    if (!ProjectExists(project.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    project = new();
                 }
+                UpdateDbModel(project, model);
+                await DI_Db.SaveChangesAsync();                 //catch (DbUpdateConcurrencyException)
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ParentId"] = new SelectList(PropDb.Projects, "Id", "Caption", project.ParentId);
-            return View(project);
+            //ViewData["ParentId"] = new SelectList(DI_Db.Projects, "Id", "Caption", m.ParentId);
+            return View(model);
         }
 
-        // GET: Projects/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+        //// GET: Projects/Delete/5
+        //public async Task<IActionResult> Delete(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            var project = await PropDb.Projects
-                .Include(p => p.Parent)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (project == null)
-            {
-                return NotFound();
-            }
+        //    var project = await DI_Db.Projects
+        //        .Include(p => p.Parent)
+        //        .FirstOrDefaultAsync(m => m.Id == id);
+        //    if (project == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            return View(project);
-        }
+        //    return View(project);
+        //}
 
-        // POST: Projects/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var project = await PropDb.Projects.FindAsync(id);
-            PropDb.Projects.Remove(project);
-            await PropDb.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool ProjectExists(int id)
-        {
-            return PropDb.Projects.Any(e => e.Id == id);
-        }
+        //// POST: Projects/Delete/5
+        //[HttpPost, ActionName("Delete")]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> DeleteConfirmed(int id)
+        //{
+        //    var project = await DI_Db.Projects.FindAsync(id);
+        //    DI_Db.Projects.Remove(project);
+        //    await DI_Db.SaveChangesAsync();
+        //    return RedirectToAction(nameof(Index));
+        //}
     }
 }

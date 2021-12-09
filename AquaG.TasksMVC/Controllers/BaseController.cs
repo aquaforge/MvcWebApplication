@@ -25,7 +25,7 @@ namespace AquaG.TasksMVC.Controllers
         private SignInManager<User> _signInManager;
         private ILogger<BaseController> _logger;
 
-        public TasksDbContext PropDb
+        public TasksDbContext DI_Db
         {
             get
             {
@@ -34,7 +34,7 @@ namespace AquaG.TasksMVC.Controllers
             }
         }
 
-        public UserManager<User> PropUserManager
+        public UserManager<User> DI_UserManager
         {
             get
             {
@@ -42,7 +42,7 @@ namespace AquaG.TasksMVC.Controllers
                 return _userManager;
             }
         }
-        public SignInManager<User> PropSignInManager
+        public SignInManager<User> DI_SignInManager
         {
             get
             {
@@ -50,7 +50,7 @@ namespace AquaG.TasksMVC.Controllers
                 return _signInManager;
             }
         }
-        public ILogger<BaseController> PropLogger
+        public ILogger<BaseController> DI_Logger
         {
             get
             {
@@ -63,22 +63,11 @@ namespace AquaG.TasksMVC.Controllers
 
         public BaseController()
         {
-            //try
-            //{
-            //    _userManager = ControllerContext.HttpContext.RequestServices.GetRequiredService<UserManager<User>>();
-            //    _signInManager = ControllerContext.HttpContext.RequestServices.GetRequiredService<SignInManager<User>>();
-            //    _db = ControllerContext.HttpContext.RequestServices.GetRequiredService<TasksDbContext>();
-            //    _logger = ControllerContext.HttpContext.RequestServices.GetRequiredService<ILogger<BaseController>>();
-            //}
-            //catch (Exception ex)
-            //{
-            //    if (_logger != null) _logger.LogError(ex, "Ошибка инициализации BaseController");
-            //}
+
         }
 
         public override RedirectResult Redirect(string url)
         {
-
             // Редирект только внутри сайта
             url = (!string.IsNullOrEmpty(url) && Url.IsLocalUrl(url)) ? url : "/";
             return base.Redirect(url);
