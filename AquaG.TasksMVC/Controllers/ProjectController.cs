@@ -25,7 +25,7 @@ namespace AquaG.TasksMVC.Controllers
 
         private ProjectModel GetProjectModelFromDbModel(Project p)
         {
-            ProjectModel m = new ();
+            ProjectModel m = new();
 
             if (p != null)
             {
@@ -43,6 +43,7 @@ namespace AquaG.TasksMVC.Controllers
         private void UpdateDbModel(Project p, ProjectModel m)
         {
             if (p.Id != m.Id) throw new ArgumentException("обновление не того проекта");
+            if (p.User != GetAuthorizedUser()) throw new ArgumentException("другой пользователь");
             p.Caption = m.Caption;
             p.Description = m.Description;
             p.LastModified = DateTime.Now;
@@ -70,7 +71,6 @@ namespace AquaG.TasksMVC.Controllers
             return View(projectModels.ToArray());
         }
 
-        [Route("Project/{id}")]
         public async Task<IActionResult> Details(int id)
         {
             User authUser = GetAuthorizedUser();
@@ -82,24 +82,16 @@ namespace AquaG.TasksMVC.Controllers
 
             if (project == null) return NotFound();
 
-            return View(project);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> Edit()
-        {
-            return await Edit(null);
+            return View(GetProjectModelFromDbModel(project));
         }
 
         // GET: Projects/Edit/5
         [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || id == 0)
-            {
-                return View(new ProjectModel());
-            }
-            else
+            ProjectModel m = new();
+
+            if (id != null & id != 0)
             {
                 User authUser = GetAuthorizedUser();
 
@@ -107,8 +99,9 @@ namespace AquaG.TasksMVC.Controllers
                     .FirstOrDefaultAsync(p => p.Id == id && p.User == authUser);
                 if (project == null) return NotFound();
 
-                return View(GetProjectModelFromDbModel(project));
+                m = GetProjectModelFromDbModel(project);
             }
+            return View(m);
         }
 
         [HttpPost]
@@ -126,12 +119,14 @@ namespace AquaG.TasksMVC.Controllers
 
                     project = await DI_Db.Projects.FirstOrDefaultAsync(p => p.Id == model.Id && p.User == authUser);
                     if (project == null) return NotFound();
+                    UpdateDbModel(project, model);
                 }
                 else
                 {
-                    project = new();
+                    project = new() { User = GetAuthorizedUser() };
+                    UpdateDbModel(project, model);
+                    DI_Db.Projects.Add(project);
                 }
-                UpdateDbModel(project, model);
                 await DI_Db.SaveChangesAsync();                 //catch (DbUpdateConcurrencyException)
                 return RedirectToAction(nameof(Index));
             }
