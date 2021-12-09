@@ -24,18 +24,18 @@ namespace AquaG.TasksMVC
         [HttpGet]
         public async Task<ActionResult<IEnumerable<dynamic>>> Get()
         {
-            return await db.Users.Select(e => new { Id = e.Id, Email = e.Email }).ToListAsync();
+            return await db.Users.Select(e => new { e.Id, e.Email }).ToListAsync();
         }
 
 
-        // GET api/<ValuesController>/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<User>> Get(string id)
-        {
-            User user = await db.Users.FirstOrDefaultAsync(x => x.Id == id);
-            if (user == null) return new ObjectResult(new User());
-            return new ObjectResult(user);
-        }
+        //// GET api/<ValuesController>/5
+        //[HttpGet("{id}")]
+        //public async Task<ActionResult<User>> Get(string id)
+        //{
+        //    User user = await db.Users.FirstOrDefaultAsync(x => x.Id == id);
+        //    if (user == null) return new ObjectResult(new User());
+        //    return new ObjectResult(user);
+        //}
 
 
 

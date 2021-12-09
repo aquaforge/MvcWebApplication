@@ -18,29 +18,10 @@
     }
 </style>
 
-    @if (!User.Identity.IsAuthenticated)
-    {
         <div class="text-center">
-            <h4>Вы не авторизованы</h4>
-            <p>Для работы с задачами нужно <a asp-area="" asp-controller="Account" asp-action="Login">авторизоваться</a> или <a asp-area="" asp-controller="Account" asp-action="Register">зарегистрироваться</a>.</p>
+            <h4>Система простейшего Таск-менеджера</h4>
+            <p>Проекты, задачи, статусы.
+            <br>Для работы нужно <a asp-area="" asp-controller="Account" asp-action="Login">авторизоваться</a> или <a asp-area="" asp-controller="Account" asp-action="Register">зарегистрироваться</a>.
+            </p>
         </div>
-    }
-    else
-    {
-        <div class="text-center">
-            <h4>Ваш список проектов и задач</h4>
-        </div>
-        <table align="center">
-            <tr><td>_abc_</td><td>_abc_</td><td>_abc_</td><td>_abc_</td><td>_abc_</td></tr>
-            <tr><td>_abc_</td><td>_abc_</td><td>_abc_</td><td>_abc_</td><td>_abc_</td></tr>
-            <tr><td>_abc_</td><td>_abc_</td><td>_abc_</td><td>_abc_</td><td>_abc_</td></tr>
-            <tr><td>_abc_</td><td>_abc_</td><td>_abc_</td><td>_abc_</td><td>_abc_</td></tr>
-            <tr><td>_abc_</td><td>_abc_</td><td>_abc_</td><td>_abc_</td><td>_abc_</td></tr>
-            <tr><td>_abc_</td><td>_abc_</td><td>_abc_</td><td>_abc_</td><td>_abc_</td></tr>
-            <tr><td>_abc_</td><td>_abc_</td><td>_abc_</td><td>_abc_</td><td>_abc_</td></tr>
-            <tr><td>_abc_</td><td>_abc_</td><td>_abc_</td><td>_abc_</td><td>_abc_</td></tr>
-            <tr><td>_abc_</td><td>_abc_</td><td>_abc_</td><td>_abc_</td><td>_abc_</td></tr>
-            <tr><td>_abc_</td><td>_abc_</td><td>_abc_</td><td>_abc_</td><td>_abc_</td></tr>
-        </table>
-    }
 

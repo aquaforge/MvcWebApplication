@@ -14,23 +14,14 @@ using Microsoft.AspNetCore.Identity;
 
 namespace AquaG.TasksMVC.Controllers
 {
-    public class AccountController : Controller
+    public class AccountController : BaseController
     {
-        private readonly TasksDbContext db;
-        private readonly UserManager<User> userManager;
-        private readonly SignInManager<User> signInManager;
-
-        public AccountController(TasksDbContext _db, UserManager<User> _userManager, SignInManager<User> _signInManager)
-        {
-            db = _db;
-            userManager = _userManager;
-            signInManager = _signInManager;
-        }
+        public AccountController() : base() { }
 
         [HttpGet]
         public async Task<IActionResult> Logout()
         {
-            await signInManager.SignOutAsync();
+            await PropSignInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
 
@@ -47,10 +38,10 @@ namespace AquaG.TasksMVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
+                var result = await PropSignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
                 if (result.Succeeded)
                 {
-                    return Redirect(GetLocalRedirectString(model.ReturnUrl));
+                    return Redirect(model.ReturnUrl);
                 }
                 else
                 {
@@ -75,16 +66,15 @@ namespace AquaG.TasksMVC.Controllers
             if (ModelState.IsValid)
             {
 
-                User user = await db.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
+                User user = await PropUserManager.FindByEmailAsync(model.Email);
                 if (user == null)
                 {
                     user = new User { Email = model.Email, UserName = model.Email };
-                    var result = await userManager.CreateAsync(user, model.Password);
+                    var result = await PropUserManager.CreateAsync(user, model.Password);
                     if (result.Succeeded)
                     {
-                        await signInManager.SignInAsync(user, false);
-                        //await signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
-                        return Redirect(GetLocalRedirectString(model.ReturnUrl));
+                        await PropSignInManager.SignInAsync(user, model.RememberMe);
+                        return Redirect(model.ReturnUrl);
                     }
                     else
                     {
@@ -94,10 +84,11 @@ namespace AquaG.TasksMVC.Controllers
                 }
                 else
                 {
-                    var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
+                    var result = await PropSignInManager.PasswordSignInAsync(userName: model.Email, password: model.Password,
+                        isPersistent: model.RememberMe, lockoutOnFailure: false);
                     if (result.Succeeded)
                     {
-                        return Redirect(GetLocalRedirectString(model.ReturnUrl));
+                        return Redirect(model.ReturnUrl);
                     }
                     else
                     {
@@ -125,14 +116,5 @@ namespace AquaG.TasksMVC.Controllers
         //    ClaimsIdentity id = new(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
         //    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
         //}
-
-        private string GetLocalRedirectString(string returnUrl)
-        {
-            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-                return returnUrl;
-            else
-                return "/";
-        }
-
     }
 }

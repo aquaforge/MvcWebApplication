@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 
 namespace AquaG.TasksMVC
 {
@@ -32,7 +33,7 @@ namespace AquaG.TasksMVC
             services.AddDbContext<TasksDbContext>(options => options.UseSqlServer(connection));
 
 
-            services.AddIdentity<User, IdentityRole>(opts =>
+            services.AddIdentity <User, IdentityRole>(opts =>
             {
                 opts.User.RequireUniqueEmail = true;
                 opts.Password.RequiredLength = 3;
@@ -45,12 +46,17 @@ namespace AquaG.TasksMVC
                 .AddEntityFrameworkStores<TasksDbContext>();
 
 
+            services.AddHttpContextAccessor();
+
             services.AddControllersWithViews();
             services.AddControllers();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+
+            
+
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
             else

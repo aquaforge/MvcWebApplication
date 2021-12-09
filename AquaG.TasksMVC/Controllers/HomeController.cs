@@ -10,19 +10,16 @@ using System.Threading.Tasks;
 
 namespace AquaG.TasksMVC.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
-
         public IActionResult Index()
         {
-            return View();
+            if (User.Identity.IsAuthenticated)
+                return RedirectToAction("Index", "Project");
+            else
+                return View();
         }
+
 
         public IActionResult About()
         {

@@ -18,6 +18,8 @@ Update-Database
  
 Remove-Migration
 Get-Migration
+Update-Help
+Get-Help Update-Database -Online
 
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
@@ -35,18 +37,8 @@ namespace AquaG.TasksDbModel
 
 
 
-    public class TasksDbContext : IdentityDbContext<User>
+    public class TasksDbContext : IdentityDbContext//<User, Role, int>
     {
-
-        //public static string GetDefaultDbConnectionString()
-        //{
-        //    string connectionString = Configuration.GetConnectionString("DefaultConnection");
-
-        //    //if (string.IsNullOrEmpty(connectionString)) 
-        //    //    connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=TaskManaderDB;Trusted_Connection=True;";
-        //    return connectionString;
-        //}
-
         public TasksDbContext() : base()
         {
             //Database.EnsureCreated();
@@ -54,22 +46,23 @@ namespace AquaG.TasksDbModel
 
         public TasksDbContext(DbContextOptions<TasksDbContext> options) : base(options)
         {
-            Database.EnsureCreated();
+            //Database.EnsureCreated();
         }
 
-        //public DbSet<User> Users { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<TaskInfo> TaskInfos { get; set; }
         public DbSet<TaskNote> TaskNotes { get; set; }
 
-        //protected override void OnConfiguring(DbContextOptionsBuilder builder)
-        ////	=> builder.UseSqlite(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
-        //{
-        //    string connectionString = GetDefaultDbConnectionString();
-        //    //connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=TaskManaderDB;Trusted_Connection=True;";
+        protected override void OnConfiguring(DbContextOptionsBuilder builder)
+        {
+            string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=TaskManaderDB;Trusted_Connection=True;";
+            Console.WriteLine(connectionString);
+            builder.UseSqlServer(connectionString);
+        }
 
-        //    Console.WriteLine(connectionString);
-        //    builder.UseSqlServer(connectionString);
+        //protected override void OnModelCreating(ModelBuilder builder)
+        //{
+        //    builder.Entity<User>().HasIndex(u => u.NormalizedEmail).IsUnique();
         //}
     }
 }
