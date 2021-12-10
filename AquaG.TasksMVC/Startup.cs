@@ -27,23 +27,23 @@ namespace AquaG.TasksMVC
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        
+
         public void ConfigureServices(IServiceCollection services)
         {
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<TasksDbContext>(options => options.UseSqlServer(connection));
 
 
-            services.AddIdentity <User, IdentityRole>(opts =>
-            {
-                opts.User.RequireUniqueEmail = true;
-                opts.Password.RequiredLength = 3;
-                opts.Password.RequireNonAlphanumeric = false;
-                opts.Password.RequireLowercase = false;
-                opts.Password.RequireUppercase = false;
-                opts.Password.RequireDigit = false;
-                opts.SignIn.RequireConfirmedAccount = false;
-            })
+            services.AddIdentity<User, IdentityRole>(opts =>
+           {
+               opts.User.RequireUniqueEmail = true;
+               opts.Password.RequiredLength = 3;
+               opts.Password.RequireNonAlphanumeric = false;
+               opts.Password.RequireLowercase = false;
+               opts.Password.RequireUppercase = false;
+               opts.Password.RequireDigit = false;
+               opts.SignIn.RequireConfirmedAccount = false;
+           })
                 .AddEntityFrameworkStores<TasksDbContext>();
 
 
@@ -59,21 +59,32 @@ namespace AquaG.TasksMVC
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
 
-            
+            app.Use(async (context, next) =>
+            {
+                await next();
+
+                if (context.Response.StatusCode == 404 && !context.Response.HasStarted)
+                {
+                    context.Items["originalPath"] = context.Request.Path.Value;
+                    context.Request.Path = "/Error/404";
+                    await next();
+                }
+            });
 
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
             else
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/Error");
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseRouting();
 
-            app.UseAuthentication();    // ��������������
-            app.UseAuthorization();     // �����������
+            app.UseAuthentication();
+            app.UseAuthorization();
 
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

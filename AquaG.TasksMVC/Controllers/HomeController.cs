@@ -19,5 +19,11 @@ namespace AquaG.TasksMVC.Controllers
             else
                 return View();
         }
+
+        public IActionResult About()
+        {
+            return View();
+        }
+
     }
 }

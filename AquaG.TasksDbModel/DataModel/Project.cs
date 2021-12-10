@@ -28,7 +28,7 @@ namespace AquaG.TasksDbModel
         {
             User = user;
             ParentId = parent.Id;
-            SubLevelNo = (parent == null)? 0 : parent.SubLevelNo+1;
+            SubLevelNo = (parent == null) ? 0 : parent.SubLevelNo + 1;
         }
     }
 }

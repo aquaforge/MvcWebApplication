@@ -23,7 +23,35 @@ namespace AquaG.TasksMVC.Controllers
         }
         public ProjectController() : base() { }
 
-        private ProjectModel GetProjectModelFromDbModel(Project p)
+
+        private static TaskModel GetTaskModelFromDbModel(TaskInfo ti)
+        {
+            TaskModel tm = new();
+
+            if (ti != null)
+            {
+                tm.Id = ti.Id;
+                tm.Project = ti.Project;
+
+                tm.Caption = ti.Caption;
+                tm.Description = ti.Description;
+
+                tm.CreationDate = ti.CreationDate;
+                tm.LastModified = ti.LastModified;
+
+                tm.IsOneAction = ti.IsOneAction;
+                tm.IsCompleted = ti.IsCompleted;
+                tm.IsDeleted = ti.IsDeleted;
+
+                tm.StartDate = ti.StartDate;
+                tm.EndDate = ti.EndDate;
+            }
+
+            return tm;
+
+        }
+
+        private static ProjectModel GetProjectModelFromDbModel(Project p)
         {
             ProjectModel m = new();
 
@@ -54,12 +82,12 @@ namespace AquaG.TasksMVC.Controllers
 
 
         // GET: Project
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
             User authUser = GetAuthorizedUser();
+            if (authUser == null) return NotFound();
 
             var projectModels = new List<ProjectModel>();
-
             var projects = DI_Db.Projects.Where(p => p.User == authUser).OrderByDescending(p => p.LastModified).ToArray();
             foreach (var p in projects)
             {
@@ -68,12 +96,25 @@ namespace AquaG.TasksMVC.Controllers
                 projectModels.Add(m);
             }
 
+            var taskModels = new List<TaskModel>();
+            var taskinfos = DI_Db.TaskInfos
+                .Where(t => t.User == authUser && t.ProjectID == null && !t.IsDeleted && !t.IsCompleted)
+                .OrderByDescending(t => t.LastModified).ToArray();
+            foreach (var ti in taskinfos)
+            {
+                taskModels.Add(GetTaskModelFromDbModel(ti));
+            }
+            ViewBag.Tasks = taskModels.ToArray();
+
             return View(projectModels.ToArray());
         }
+
+
 
         public async Task<IActionResult> Details(int id)
         {
             User authUser = GetAuthorizedUser();
+            if (authUser == null) return NotFound();
 
             var project = await DI_Db.Projects
                 .Include(p => p.Parent)
@@ -94,6 +135,7 @@ namespace AquaG.TasksMVC.Controllers
             if (id != null & id != 0)
             {
                 User authUser = GetAuthorizedUser();
+                if (authUser == null) return NotFound();
 
                 Project project = await DI_Db.Projects
                     .FirstOrDefaultAsync(p => p.Id == id && p.User == authUser);
@@ -116,6 +158,7 @@ namespace AquaG.TasksMVC.Controllers
                 if (model.Id != 0)
                 {
                     User authUser = GetAuthorizedUser();
+                    if (authUser == null) return NotFound();
 
                     project = await DI_Db.Projects.FirstOrDefaultAsync(p => p.Id == model.Id && p.User == authUser);
                     if (project == null) return NotFound();

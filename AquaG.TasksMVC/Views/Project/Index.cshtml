@@ -1,65 +1,43 @@
 ﻿@model IEnumerable<AquaG.TasksDbModel.ProjectModel>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Список проектов и задач";
 }
-
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Edit">Create New</a>
-</p>
-<table class="table">
-    <thead>
+<h5>Задачи</h5>
+<table width="100%">
+    @foreach (var item in ViewBag.Tasks)
+    {
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.IsActive)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Caption)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreationDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LastModified)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsDeleted)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsActive)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Caption)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreationDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LastModified)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsDeleted)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            <td align="left"><a asp-action="Details" asp-route-id="@item.Id">@item.Caption</a><hr></td>
+            <td align="right">
+                @{
+                    if (item.IsOneAction) "++".ToString();
+                } &nbsp;
+                @{
+                    (item.EndDate ?? "").Tostring();
+                }<hr>
             </td>
         </tr>
-}
-    </tbody>
+    }
+    <tr><td colspan="2" align="right"><a asp-controller="Task" asp-action="Edit">Новая задача</a></td></tr>
 </table>
+
+
+<h5>Проекты</h5>
+<table width="100%">
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td align="left"><a asp-action="Details" asp-route-id="@item.Id">@item.Caption</a><hr></td>
+            <td align="right">&nbsp;@{
+                    if (@item.NumberOfTasks != 0)
+                    {
+                        @item.NumberOfTasks
+                    };
+                }<hr></td>
+        </tr>
+    }
+    <tr><td colspan="2" align="right"><a asp-action="Edit">Новый проект</a></td></tr>
+</table>
+
+
