@@ -1,21 +1,24 @@
-﻿@model IEnumerable<AquaG.TasksDbModel.ProjectModel>
+﻿@model AquaG.TasksMVC.ViewModels.UserAllViewModel
 
 @{
     ViewData["Title"] = "Список проектов и задач";
 }
-<h5>Задачи</h5>
+<h5>Отдельные задачи</h5>
 <table width="100%">
-    @foreach (var item in ViewBag.Tasks)
+    @foreach (var item in Model.Tasks)
     {
         <tr>
-            <td align="left"><a asp-action="Details" asp-route-id="@item.Id">@item.Caption</a><hr></td>
-            <td align="right">
-                @{
-                    if (item.IsOneAction) "++".ToString();
-                } &nbsp;
-                @{
-                    (item.EndDate ?? "").Tostring();
-                }<hr>
+            <td align="left"><a asp-controller="Task" asp-action="Edit" asp-route-id="@item.Id">@item.Caption</a><hr></td>
+            <td align="right">&nbsp;
+                @if (item.IsOneAction)
+                {
+                    @:OneAction
+                }
+                @if (item.EndDate != null)
+                {
+                    @item.EndDate
+                }
+                <hr>
             </td>
         </tr>
     }
@@ -25,16 +28,19 @@
 
 <h5>Проекты</h5>
 <table width="100%">
-    @foreach (var item in Model)
+    @foreach (var item in Model.Projects)
     {
         <tr>
-            <td align="left"><a asp-action="Details" asp-route-id="@item.Id">@item.Caption</a><hr></td>
-            <td align="right">&nbsp;@{
-                    if (@item.NumberOfTasks != 0)
-                    {
-                        @item.NumberOfTasks
-                    };
-                }<hr></td>
+            <td align="left">
+                <a asp-action="Details" asp-route-id="@item.Id">@item.Caption</a>
+                <br><a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
+                <hr>
+            </td>
+            <td align="right">
+                @item.NumberOfTasks задач
+                <br>
+                <hr>
+            </td>
         </tr>
     }
     <tr><td colspan="2" align="right"><a asp-action="Edit">Новый проект</a></td></tr>

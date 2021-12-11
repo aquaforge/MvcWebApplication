@@ -25,7 +25,7 @@ namespace AquaG.TasksMVC.Controllers
         private SignInManager<User> _signInManager;
         private ILogger<BaseController> _logger;
 
-        public TasksDbContext DI_Db
+        public TasksDbContext _DI_Db
         {
             get
             {
@@ -73,12 +73,6 @@ namespace AquaG.TasksMVC.Controllers
             return base.Redirect(url);
         }
 
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
 
     }
 }

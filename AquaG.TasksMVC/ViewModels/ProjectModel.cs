@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace AquaG.TasksDbModel
+namespace AquaG.TasksMVC.ViewModels
 {
     public class ProjectModel
     {

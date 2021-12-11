@@ -13,6 +13,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Rewrite;
 using AquaG.TasksMVC.Data;
 
 namespace AquaG.TasksMVC
@@ -63,18 +64,22 @@ namespace AquaG.TasksMVC
             {
                 await next();
 
-                if (context.Response.StatusCode == 404 && !context.Response.HasStarted)
+                int statusCode = context.Response.StatusCode;
+                if (!context.Response.HasStarted && (statusCode == 400 || statusCode == 401 || statusCode == 404))
                 {
                     context.Items["originalPath"] = context.Request.Path.Value;
-                    context.Request.Path = "/Error/404";
+                    context.Request.Path = $"~/Home/Error/{statusCode}";
                     await next();
                 }
+
             });
 
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
             else
-                app.UseExceptionHandler("/Error");
+                app.UseExceptionHandler("~/Home/Error");
+
+            app.UseRewriter(new RewriteOptions().AddRedirect("(.*)/$", "$1"));
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
@@ -84,7 +89,7 @@ namespace AquaG.TasksMVC
             app.UseAuthentication();
             app.UseAuthorization();
 
-            
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

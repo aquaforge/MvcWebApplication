@@ -25,5 +25,21 @@ namespace AquaG.TasksMVC.Controllers
             return View();
         }
 
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error(int? id)
+        {
+            var evm = new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier };
+
+            evm.ErrorMessage = id switch
+            {
+                404 => $"{id} - Страница не найдена",
+                400 => $"{id} - Ошибочный запрос",
+                401 => $"{id} - Неавторизованный запрос",
+                _ => $"{id}",
+            };
+
+            return View(evm);
+        }
+
     }
 }

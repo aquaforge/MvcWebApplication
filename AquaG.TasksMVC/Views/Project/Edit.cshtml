@@ -1,4 +1,4 @@
-﻿@model AquaG.TasksDbModel.ProjectModel
+﻿@model AquaG.TasksMVC.ViewModels.ProjectModel
 @{
     ViewData["Title"] = "Редактирование деталей проекта";
 }
@@ -27,16 +27,6 @@
 @if (Model.Id != null && Model.Id != 0)
 {           
            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsActive" /> @Html.DisplayNameFor(model => model.IsActive)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsDeleted" /> @Html.DisplayNameFor(model => model.IsDeleted)
-                </label>
-            </div>
-           <div class="form-group form-check">
                @Html.DisplayNameFor(model => model.LastModified)
                @Model.LastModified
             </div>
@@ -49,7 +39,7 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">К списку</a>
 </div>
 
 @section Scripts {

@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using AquaG.TasksDbModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using AquaG.TasksMVC.ViewModels;
 
 namespace AquaG.TasksMVC.Controllers
 {
@@ -75,24 +76,29 @@ namespace AquaG.TasksMVC.Controllers
             p.Caption = m.Caption;
             p.Description = m.Description;
             p.LastModified = DateTime.Now;
-            p.IsActive = m.IsActive ?? true;
-            p.IsDeleted = m.IsDeleted ?? false;
         }
 
 
 
         // GET: Project
-        public IActionResult Index()
+        public IActionResult Index(int? id)
         {
             User authUser = GetAuthorizedUser();
-            if (authUser == null) return NotFound();
+            if (authUser == null) return Unauthorized();
+
+
 
             var projectModels = new List<ProjectModel>();
-            var projects = DI_Db.Projects.Where(p => p.User == authUser).OrderByDescending(p => p.LastModified).ToArray();
+            var projects = DI_Db.Projects
+                .Where(p => p.User == authUser && !p.IsDeleted && p.IsActive)
+                .OrderByDescending(p => p.LastModified)
+                .ToArray();
             foreach (var p in projects)
             {
                 ProjectModel m = GetProjectModelFromDbModel(p);
-                m.NumberOfTasks = DI_Db.TaskInfos.Where(t => t.ProjectID == p.Id && !t.IsDeleted && !t.IsCompleted).Count();
+                m.NumberOfTasks = DI_Db.TaskInfos
+                    .Where(t => t.ProjectID == p.Id && !t.IsDeleted && !t.IsCompleted)
+                    .Count();
                 projectModels.Add(m);
             }
 
@@ -111,20 +117,21 @@ namespace AquaG.TasksMVC.Controllers
 
 
 
-        public async Task<IActionResult> Details(int id)
-        {
-            User authUser = GetAuthorizedUser();
-            if (authUser == null) return NotFound();
 
-            var project = await DI_Db.Projects
-                .Include(p => p.Parent)
-                .Include(p => p.TaskInfo)
-                .FirstOrDefaultAsync(p => p.Id == id && p.User == authUser);
+        //public async Task<IActionResult> Details(int id)
+        //{
+        //    User authUser = GetAuthorizedUser();
+        //    if (authUser == null) return Unauthorized();
 
-            if (project == null) return NotFound();
+        //    var project = await DI_Db.Projects
+        //        .Include(p => p.Parent)
+        //        .Include(p => p.TaskInfo)
+        //        .FirstOrDefaultAsync(p => p.Id == id && p.User == authUser);
 
-            return View(GetProjectModelFromDbModel(project));
-        }
+        //    if (project == null) return BadRequest();
+
+        //    return View(GetProjectModelFromDbModel(project));
+        //}
 
         // GET: Projects/Edit/5
         [HttpGet]
@@ -135,11 +142,11 @@ namespace AquaG.TasksMVC.Controllers
             if (id != null & id != 0)
             {
                 User authUser = GetAuthorizedUser();
-                if (authUser == null) return NotFound();
+                if (authUser == null) return Unauthorized();
 
                 Project project = await DI_Db.Projects
                     .FirstOrDefaultAsync(p => p.Id == id && p.User == authUser);
-                if (project == null) return NotFound();
+                if (project == null) return BadRequest();
 
                 m = GetProjectModelFromDbModel(project);
             }
@@ -150,7 +157,7 @@ namespace AquaG.TasksMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ParentId,IsActive,OrderId,SubLevelNo,Id,Caption,Description,CreationDate,LastModified,IsDeleted")] ProjectModel model)
         {
-            if (id != model.Id) return NotFound();
+            if (id != model.Id) return BadRequest();
 
             if (ModelState.IsValid)
             {
@@ -158,10 +165,10 @@ namespace AquaG.TasksMVC.Controllers
                 if (model.Id != 0)
                 {
                     User authUser = GetAuthorizedUser();
-                    if (authUser == null) return NotFound();
+                    if (authUser == null) return Unauthorized();
 
                     project = await DI_Db.Projects.FirstOrDefaultAsync(p => p.Id == model.Id && p.User == authUser);
-                    if (project == null) return NotFound();
+                    if (project == null) return BadRequest();
                     UpdateDbModel(project, model);
                 }
                 else
@@ -177,34 +184,34 @@ namespace AquaG.TasksMVC.Controllers
             return View(model);
         }
 
-        //// GET: Projects/Delete/5
-        //public async Task<IActionResult> Delete(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
+        // GET: Project/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null) return BadRequest();
 
-        //    var project = await DI_Db.Projects
-        //        .Include(p => p.Parent)
-        //        .FirstOrDefaultAsync(m => m.Id == id);
-        //    if (project == null)
-        //    {
-        //        return NotFound();
-        //    }
+            User authUser = GetAuthorizedUser();
+            if (authUser == null) return Unauthorized();
 
-        //    return View(project);
-        //}
+            var project = await DI_Db.Projects.FirstOrDefaultAsync((p => p.Id == id && p.User == authUser));
+            if (project == null) return BadRequest();
 
-        //// POST: Projects/Delete/5
-        //[HttpPost, ActionName("Delete")]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> DeleteConfirmed(int id)
-        //{
-        //    var project = await DI_Db.Projects.FindAsync(id);
-        //    DI_Db.Projects.Remove(project);
-        //    await DI_Db.SaveChangesAsync();
-        //    return RedirectToAction(nameof(Index));
-        //}
+            return View(GetProjectModelFromDbModel(project));
+        }
+
+        // POST: Project/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            User authUser = GetAuthorizedUser();
+            if (authUser == null) return Unauthorized();
+
+            var project = await DI_Db.Projects.FirstOrDefaultAsync((p => p.Id == id && p.User == authUser));
+            if (project == null) return BadRequest(); 
+
+            DI_Db.Projects.Remove(project);
+            await DI_Db.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
