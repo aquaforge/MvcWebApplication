@@ -4,5 +4,5 @@ using System.Text;
 
 namespace AquaG.TasksDbModel
 {
-    public enum ItemImportance { Low, Normal, High };
+    public enum ItemPriority { Low, Normal, High };
 }

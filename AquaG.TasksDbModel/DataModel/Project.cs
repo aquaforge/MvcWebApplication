@@ -22,13 +22,5 @@ namespace AquaG.TasksDbModel
         [Required] public int OrderId { get; set; } = 0;
         [Required] public int SubLevelNo { get; set; } = 0;
 
-
-        public Project() { }
-        public Project(User user, string caption, string description, Project parent) : base(caption, description)
-        {
-            User = user;
-            ParentId = parent.Id;
-            SubLevelNo = (parent == null) ? 0 : parent.SubLevelNo + 1;
-        }
     }
 }

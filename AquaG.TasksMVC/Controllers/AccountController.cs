@@ -21,7 +21,7 @@ namespace AquaG.TasksMVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Logout()
         {
-            await DI_SignInManager.SignOutAsync();
+            await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
 
@@ -38,7 +38,7 @@ namespace AquaG.TasksMVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await DI_SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
+                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
                 if (result.Succeeded)
                 {
                     return Redirect(model.ReturnUrl);
@@ -66,14 +66,14 @@ namespace AquaG.TasksMVC.Controllers
             if (ModelState.IsValid)
             {
 
-                User user = await DI_UserManager.FindByEmailAsync(model.Email);
+                User user = await _userManager.FindByEmailAsync(model.Email);
                 if (user == null)
                 {
                     user = new User { Email = model.Email, UserName = model.Email };
-                    var result = await DI_UserManager.CreateAsync(user, model.Password);
+                    var result = await _userManager.CreateAsync(user, model.Password);
                     if (result.Succeeded)
                     {
-                        await DI_SignInManager.SignInAsync(user, model.RememberMe);
+                        await _signInManager.SignInAsync(user, model.RememberMe);
                         return Redirect(model.ReturnUrl);
                     }
                     else
@@ -84,7 +84,7 @@ namespace AquaG.TasksMVC.Controllers
                 }
                 else
                 {
-                    var result = await DI_SignInManager.PasswordSignInAsync(userName: model.Email, password: model.Password,
+                    var result = await _signInManager.PasswordSignInAsync(userName: model.Email, password: model.Password,
                         isPersistent: model.RememberMe, lockoutOnFailure: false);
                     if (result.Succeeded)
                     {

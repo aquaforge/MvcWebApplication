@@ -43,53 +43,37 @@ namespace AquaG.TasksMVC.Controllers
             base.OnActionExecuting(context);
         }
 
+        protected delegate TOutput GetViewModelFromOneRecord<TOutput, TSource>(TSource val);
 
-
-
-
-
-
-
-        public TasksDbContext DI_Db
+        protected async Task<IActionResult> GetOneRecordFromDbAsActionResult<TSource, TOutput>(
+            System.Linq.IQueryable<TSource> source,
+            System.Linq.Expressions.Expression<Func<TSource, bool>> predicate,
+            GetViewModelFromOneRecord<TOutput, TSource> func)
         {
-            get
-            {
-                return _db;
-            }
+            if (_authorizedUser == null) return Unauthorized();
+
+            TSource t = await source.FirstOrDefaultAsync(predicate);
+            if (t == null) return BadRequest();
+
+            return View(func.Invoke(t));
         }
 
-        public UserManager<User> DI_UserManager
-        {
-            get
-            {
-                if (_userManager == null) _userManager = HttpContext.RequestServices.GetRequiredService<UserManager<User>>();
-                return _userManager;
-            }
-        }
-        public SignInManager<User> DI_SignInManager
-        {
-            get
-            {
-                if (_signInManager == null) _signInManager = HttpContext.RequestServices.GetRequiredService<SignInManager<User>>();
-                return _signInManager;
-            }
-        }
-        public ILogger<BaseController> DI_Logger
-        {
-            get
-            {
-                if (_logger == null) _logger = HttpContext.RequestServices.GetRequiredService<ILogger<BaseController>>();
-                return _logger;
-            }
-        }
+        //protected async Task<TOutput> GetOneRecordFromDb<TSource, TOutput>(
+        //    System.Linq.IQueryable<TSource> source,
+        //    System.Linq.Expressions.Expression<Func<TSource, bool>> predicate,
+        //    GetViewModelFromOneRecord<TOutput, TSource> func)
+        //{
+        //    if (_authorizedUser == null) throw new ArgumentException("GetOneRecordFromDb");
+
+        //    TSource t = await source.FirstOrDefaultAsync(predicate);
+        //    if (t == null) throw new ArgumentException("GetOneRecordFromDb");  
+
+        //    return func.Invoke(t);
+        //}
 
 
 
-        public BaseController()
-        {
-            //Console.WriteLine(HttpContext.Request.Path);
-        }
-
+        [NonAction]
         public override RedirectResult Redirect(string url)
         {
             // Редирект только внутри сайта

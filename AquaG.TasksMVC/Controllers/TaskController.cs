@@ -17,164 +17,125 @@ namespace AquaG.TasksMVC.Controllers
         }
 
 
-        public static TaskModel GetTaskModelFromDbModel(TaskInfo ti)
+        public static TaskModel GetTaskModelFromDbModel(TaskInfo task)
         {
-            TaskModel tm = new();
+            TaskModel model = new();
 
-            if (ti != null)
+            if (task != null)
             {
-                tm.Id = ti.Id;
-                tm.Project = ti.Project;
+                model.Id = task.Id;
+                model.ProjectID = task.ProjectID;
+                model.Project = task.Project;
 
-                tm.Caption = ti.Caption;
-                tm.Description = ti.Description;
+                model.Caption = task.Caption;
+                model.Description = task.Description;
 
-                tm.CreationDate = ti.CreationDate;
-                tm.LastModified = ti.LastModified;
+                model.CreationDate = task.CreationDate;
+                model.LastModified = task.LastModified;
 
-                tm.IsOneAction = ti.IsOneAction;
-                tm.IsCompleted = ti.IsCompleted;
-                tm.IsDeleted = ti.IsDeleted;
+                model.IsOneAction = task.IsOneAction;
+                model.IsCompleted = task.IsCompleted;
+                model.IsDeleted = task.IsDeleted;
+                model.IsNotifyNeeded = task.IsNotifyNeeded;
+                model.OrderId = task.OrderId;
 
-                tm.StartDate = ti.StartDate;
-                tm.EndDate = ti.EndDate;
+                model.StartDate = task.StartDate;
+                model.EndDate = task.EndDate;
             }
+            return model;
+        }
 
-            return tm;
+        private void UpdateDbModelTask(TaskInfo task, TaskModel model)
+        {
+            if (task.Id != model.Id) throw new ArgumentException("обновление не того проекта");
+            if (task.User != _authorizedUser) throw new ArgumentException("другой пользователь");
+            task.Caption = model.Caption;
+            task.Description = model.Description;
+            task.LastModified = DateTime.Now;
+            task.ProjectID = model.ProjectID;
+            task.Project = model.Project;
+            task.StartDate = model.StartDate;
+            task.EndDate = model.EndDate;
+            task.IsDeleted = model.IsDeleted;
+            task.IsOneAction = model.IsOneAction;
+            task.Priority = model.Priority;
+            task.IsNotifyNeeded = model.IsNotifyNeeded;
+            task.OrderId = model.OrderId;
+        }
 
+        [Route("Task/{id}")]
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id, int? projectID)
+        {
+            if (id == 0)
+                return View(new TaskModel() { ProjectID = projectID });
+
+            return await GetOneRecordFromDbAsActionResult<TaskInfo, TaskModel>(
+                    _db.TaskInfos,
+                    (t => t.Id == id && t.User == _authorizedUser && (projectID == null || t.ProjectID == projectID)),
+                    GetTaskModelFromDbModel);
         }
 
 
-        //// GET: Task
-        //public async Task<IActionResult> Index()
-        //{
-        //    return View(await DI_Db.TaskModel.ToListAsync());
-        //}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Caption,Description,CreationDate,LastModified,IsDeleted,StartDate,EndDate,IsNotifyNeeded,Priority,IsCompleted,IsOneAction,OrderId")] TaskModel model)
+        {
+            if (id != model.Id) return BadRequest();
+            if (_authorizedUser == null) return Unauthorized();
 
-        //// GET: Task/Details/5
-        //public async Task<IActionResult> Details(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
+            if (ModelState.IsValid)
+            {
+                TaskInfo task;
+                if (model.Id != 0)
+                {
+                    task = await _db.TaskInfos.FirstOrDefaultAsync(t => t.Id == model.Id && t.User == _authorizedUser);
+                    if (task == null) return BadRequest();
+                    UpdateDbModelTask(task, model);
+                }
+                else
+                {
+                    task = new() { User = _authorizedUser };
+                    UpdateDbModelTask(task, model);
+                    _db.TaskInfos.Add(task);
+                }
+                await _db.SaveChangesAsync();                 //catch (DbUpdateConcurrencyException)
+                return RedirectToAction(nameof(Index));
+            }
 
-        //    var taskModel = await DI_Db.TaskModel
-        //        .FirstOrDefaultAsync(m => m.Id == id);
-        //    if (taskModel == null)
-        //    {
-        //        return NotFound();
-        //    }
+            return View(model);
+        }
 
-        //    return View(taskModel);
-        //}
 
-        //// GET: Task/Create
-        //public IActionResult Create()
-        //{
-        //    return View();
-        //}
 
-        //// POST: Task/Create
-        //// To protect from overposting attacks, enable the specific properties you want to bind to.
-        //// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Create([Bind("Id,Caption,Description,CreationDate,LastModified,IsDeleted,StartDate,EndDate,IsNotifyNeeded,Priority,IsCompleted,IsOneAction,OrderId")] TaskModel taskModel)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        DI_Db.Add(taskModel);
-        //        await DI_Db.SaveChangesAsync();
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    return View(taskModel);
-        //}
 
-        // GET: Task/Edit/5
+        // GET: Task/Delete/5
+        public async Task<IActionResult> Delete(int id)
+        {
+            return await GetOneRecordFromDbAsActionResult<TaskInfo, TaskModel>(
+                _db.TaskInfos,
+                (t => t.Id == id && t.User == _authorizedUser),
+                GetTaskModelFromDbModel);
+        }
 
-        //public async Task<IActionResult> Edit(int? id, int? projectID)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
+        // POST: Task/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            if (_authorizedUser == null) return Unauthorized();
 
-        //    var taskModel = await DI_Db.TaskModel.FindAsync(id);
-        //    if (taskModel == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return View(taskModel);
-        //}
+            var task = await _db.TaskInfos.FirstOrDefaultAsync((t => t.Id == id && t.User == _authorizedUser));
+            if (task == null) return BadRequest();
 
-        //// POST: Task/Edit/5
-        //// To protect from overposting attacks, enable the specific properties you want to bind to.
-        //// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Edit(int id, [Bind("Id,Caption,Description,CreationDate,LastModified,IsDeleted,StartDate,EndDate,IsNotifyNeeded,Priority,IsCompleted,IsOneAction,OrderId")] TaskModel taskModel)
-        //{
-        //    if (id != taskModel.Id)
-        //    {
-        //        return NotFound();
-        //    }
+            int? projectID = task.ProjectID;
 
-        //    if (ModelState.IsValid)
-        //    {
-        //        try
-        //        {
-        //            DI_Db.Update(taskModel);
-        //            await DI_Db.SaveChangesAsync();
-        //        }
-        //        catch (DbUpdateConcurrencyException)
-        //        {
-        //            if (!TaskModelExists(taskModel.Id))
-        //            {
-        //                return NotFound();
-        //            }
-        //            else
-        //            {
-        //                throw;
-        //            }
-        //        }
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    return View(taskModel);
-        //}
+            task.IsDeleted = true;
+            await _db.SaveChangesAsync();
 
-        //// GET: Task/Delete/5
-        //public async Task<IActionResult> Delete(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
+            return RedirectToAction("/Project" + (projectID == null ? "" : $"/{projectID}"));
+        }
 
-        //    var taskModel = await DI_Db.TaskModel
-        //        .FirstOrDefaultAsync(m => m.Id == id);
-        //    if (taskModel == null)
-        //    {
-        //        return NotFound();
-        //    }
 
-        //    return View(taskModel);
-        //}
-
-        //// POST: Task/Delete/5
-        //[HttpPost, ActionName("Delete")]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> DeleteConfirmed(int id)
-        //{
-        //    var taskModel = await DI_Db.TaskModel.FindAsync(id);
-        //    DI_Db.TaskModel.Remove(taskModel);
-        //    await DI_Db.SaveChangesAsync();
-        //    return RedirectToAction(nameof(Index));
-        //}
-
-        //private bool TaskModelExists(int id)
-        //{
-        //    return DI_Db.TaskModel.Any(e => e.Id == id);
-        //}
     }
 }

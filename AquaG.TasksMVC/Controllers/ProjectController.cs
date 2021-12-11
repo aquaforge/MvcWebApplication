@@ -37,7 +37,7 @@ namespace AquaG.TasksMVC.Controllers
             return m;
         }
 
-        public void UpdateDbModel(Project p, ProjectModel m)
+        private void UpdateDbModelProject(Project p, ProjectModel m)
         {
             if (p.Id != m.Id) throw new ArgumentException("обновление не того проекта");
             if (p.User != _authorizedUser) throw new ArgumentException("другой пользователь");
@@ -53,26 +53,26 @@ namespace AquaG.TasksMVC.Controllers
         [HttpGet]
         public IActionResult Index(int? id)
         {
-            ViewData["ProjectId"] = id;
+            //ViewData["ProjectId"] = id;
 
             if (_authorizedUser == null) return Unauthorized();
 
             var projectModels = new List<ProjectModel>();
-            var projects = DI_Db.Projects
+            var projects = _db.Projects
                 .Where(p => p.User == _authorizedUser && !p.IsDeleted && p.IsActive && (id == null || p.Id == id))
                 .OrderByDescending(p => p.LastModified)
                 .ToArray();
             foreach (var p in projects)
             {
                 ProjectModel m = GetProjectModelFromDbModel(p);
-                m.NumberOfTasks = DI_Db.TaskInfos
+                m.NumberOfTasks = _db.TaskInfos
                     .Where(t => t.ProjectID == p.Id && !t.IsDeleted && !t.IsCompleted)
                     .Count();
                 projectModels.Add(m);
             }
 
             var taskModels = new List<TaskModel>();
-            var taskinfos = DI_Db.TaskInfos
+            var taskinfos = _db.TaskInfos
                 .Where(t => t.User == _authorizedUser && t.ProjectID == null && !t.IsDeleted && !t.IsCompleted && (id == null || t.ProjectID == id))
                 .OrderByDescending(t => t.LastModified).ToArray();
             foreach (var ti in taskinfos)
@@ -83,41 +83,18 @@ namespace AquaG.TasksMVC.Controllers
         }
 
 
-
-
-        //public async Task<IActionResult> Details(int id)
-        //{
-        //    
-        //    if (_authorizedUser == null) return Unauthorized();
-
-        //    var project = await DI_Db.Projects
-        //        .Include(p => p.Parent)
-        //        .Include(p => p.TaskInfo)
-        //        .FirstOrDefaultAsync(p => p.Id == id && p.User == authUser);
-
-        //    if (project == null) return BadRequest();
-
-        //    return View(GetProjectModelFromDbModel(project));
-        //}
-
-        // GET: Projects/Edit/5
         [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
             ProjectModel m = new();
 
-            if (id != null & id != 0)
-            {
+            if (id.GetValueOrDefault() == 0)
+                return View(new ProjectModel());
 
-                if (_authorizedUser == null) return Unauthorized();
-
-                Project project = await DI_Db.Projects
-                    .FirstOrDefaultAsync(p => p.Id == id && p.User == _authorizedUser);
-                if (project == null) return BadRequest();
-
-                m = GetProjectModelFromDbModel(project);
-            }
-            return View(m);
+            return await GetOneRecordFromDbAsActionResult<Project, ProjectModel>(
+                _db.Projects,
+                (p => p.Id == id && p.User == _authorizedUser),
+                GetProjectModelFromDbModel);
         }
 
         [HttpPost]
@@ -125,6 +102,7 @@ namespace AquaG.TasksMVC.Controllers
         public async Task<IActionResult> Edit(int id, [Bind("ParentId,IsActive,OrderId,SubLevelNo,Id,Caption,Description,CreationDate,LastModified,IsDeleted")] ProjectModel model)
         {
             if (id != model.Id) return BadRequest();
+            if (_authorizedUser == null) return Unauthorized();
 
             if (ModelState.IsValid)
             {
@@ -132,37 +110,31 @@ namespace AquaG.TasksMVC.Controllers
                 if (model.Id != 0)
                 {
 
-                    if (_authorizedUser == null) return Unauthorized();
 
-                    project = await DI_Db.Projects.FirstOrDefaultAsync(p => p.Id == model.Id && p.User == _authorizedUser);
+                    project = await _db.Projects.FirstOrDefaultAsync(p => p.Id == model.Id && p.User == _authorizedUser);
                     if (project == null) return BadRequest();
-                    UpdateDbModel(project, model);
+                    UpdateDbModelProject(project, model);
                 }
                 else
                 {
                     project = new() { User = _authorizedUser };
-                    UpdateDbModel(project, model);
-                    DI_Db.Projects.Add(project);
+                    UpdateDbModelProject(project, model);
+                    _db.Projects.Add(project);
                 }
-                await DI_Db.SaveChangesAsync();                 //catch (DbUpdateConcurrencyException)
+                await _db.SaveChangesAsync();                 //catch (DbUpdateConcurrencyException)
                 return RedirectToAction(nameof(Index));
             }
-            //ViewData["ParentId"] = new SelectList(DI_Db.Projects, "Id", "Caption", m.ParentId);
+
             return View(model);
         }
 
         // GET: Project/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null) return BadRequest();
-
-
-            if (_authorizedUser == null) return Unauthorized();
-
-            var project = await DI_Db.Projects.FirstOrDefaultAsync((p => p.Id == id && p.User == _authorizedUser));
-            if (project == null) return BadRequest();
-
-            return View(GetProjectModelFromDbModel(project));
+            return await GetOneRecordFromDbAsActionResult<Project, ProjectModel>(
+                _db.Projects,
+                (p => p.Id == id && p.User == _authorizedUser),
+                GetProjectModelFromDbModel);
         }
 
         // POST: Project/Delete/5
@@ -170,14 +142,14 @@ namespace AquaG.TasksMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-
             if (_authorizedUser == null) return Unauthorized();
 
-            var project = await DI_Db.Projects.FirstOrDefaultAsync((p => p.Id == id && p.User == _authorizedUser));
+            var project = await _db.Projects.FirstOrDefaultAsync((p => p.Id == id && p.User == _authorizedUser));
             if (project == null) return BadRequest();
 
-            DI_Db.Projects.Remove(project);
-            await DI_Db.SaveChangesAsync();
+            project.IsDeleted = true;
+            await _db.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
     }

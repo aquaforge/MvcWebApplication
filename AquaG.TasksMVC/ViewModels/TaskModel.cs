@@ -20,6 +20,7 @@ namespace AquaG.TasksMVC.ViewModels
 
         [Required] public bool IsDeleted { get; set; } = false;
 
+        public int? ProjectID { get; set; }
         public Project Project { get; set; }
 
         public DateTime? StartDate { get; set; }
@@ -28,7 +29,7 @@ namespace AquaG.TasksMVC.ViewModels
 
         [Required] public bool IsNotifyNeeded { get; set; } = false;
 
-        [Required] public ItemImportance Priority { get; set; } = ItemImportance.Normal;
+        public ItemPriority Priority { get; set; } = ItemPriority.Normal;
 
         [Required] public bool IsCompleted { get; set; } = false;
 

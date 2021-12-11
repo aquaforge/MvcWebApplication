@@ -44,7 +44,6 @@ namespace AquaG.TasksDbModel
 
         public DbSet<Project> Projects { get; set; }
         public DbSet<TaskInfo> TaskInfos { get; set; }
-        public DbSet<TaskNote> TaskNotes { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder builder)
         {

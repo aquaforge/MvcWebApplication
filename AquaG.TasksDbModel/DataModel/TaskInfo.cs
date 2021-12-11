@@ -23,25 +23,12 @@ namespace AquaG.TasksDbModel
 
         [Required] public bool IsNotifyNeeded { get; set; } = false;
 
-        [Required] public ItemImportance Priority { get; set; } = ItemImportance.Normal;
+        [Required] public ItemPriority Priority { get; set; } = ItemPriority.Normal;
 
         [Required] public bool IsCompleted { get; set; } = false;
 
         [Required] public bool IsOneAction { get; set; } = false;
 
         [Required] public int OrderId { get; set; } = 0;
-
-        public ICollection<TaskNote> Notes { get; set; }
-
-
-        public TaskInfo() { }
-        public TaskInfo(User user, int? projectID, string caption, string description, DateTime? startDate, DateTime? endDate, ItemImportance priority = ItemImportance.Normal) : base(caption, description)
-        {
-            User = user;
-            ProjectID = projectID;
-            StartDate = startDate;
-            EndDate = endDate;
-            Priority = priority;
-        }
     }
 }
