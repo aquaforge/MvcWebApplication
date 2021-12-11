@@ -21,23 +21,24 @@ namespace AquaG.TasksMVC.Controllers
 {
     public class BaseController : Controller
     {
-        private TasksDbContext _db;
-        private UserManager<User> _userManager;
-        private SignInManager<User> _signInManager;
-        private ILogger<BaseController> _logger;
+        protected TasksDbContext _db;
+        protected UserManager<User> _userManager;
+        protected SignInManager<User> _signInManager;
+        protected ILogger<BaseController> _logger;
 
-        private User _authorizedUser;
-        protected User GetAuthorizedUser()
-        {
-            if (User.Identity.IsAuthenticated && _authorizedUser == null)
-                _authorizedUser = DI_UserManager.FindByEmailAsync(User.Identity.Name).GetAwaiter().GetResult();
-
-            return _authorizedUser;
-        }
+        protected User _authorizedUser;
 
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            GetAuthorizedUser();
+            _db = HttpContext.RequestServices.GetRequiredService<TasksDbContext>();
+            _userManager = HttpContext.RequestServices.GetRequiredService<UserManager<User>>();
+            _signInManager = HttpContext.RequestServices.GetRequiredService<SignInManager<User>>();
+            _logger = HttpContext.RequestServices.GetRequiredService<ILogger<BaseController>>();
+
+            if (User.Identity.IsAuthenticated)
+                _authorizedUser = _userManager.FindByEmailAsync(User.Identity.Name).GetAwaiter().GetResult();
+
+
 
             base.OnActionExecuting(context);
         }
@@ -53,7 +54,6 @@ namespace AquaG.TasksMVC.Controllers
         {
             get
             {
-                if (_db == null) _db = HttpContext.RequestServices.GetRequiredService<TasksDbContext>();
                 return _db;
             }
         }

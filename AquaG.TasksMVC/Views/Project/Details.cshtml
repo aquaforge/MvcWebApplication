@@ -1,0 +1,29 @@
+﻿@model AquaG.TasksMVC.ViewModels.UserAllViewModel
+
+@{
+    ViewData["Title"] = "Проекты и задачи";
+}
+
+<h5>Задачи по проекту @Model.Projects.First().Caption</h5>
+
+
+<table width="100%">
+    @foreach (var item in Model.Tasks)
+    {
+        <tr>
+            <td align="left"><a asp-controller="Task" asp-action="Edit" asp-route-id="@item.Id" asp-route-ProjectId="@Model.Projects.First().Id">@item.Caption</a><hr></td>
+            <td align="right">&nbsp;
+                @if (item.IsOneAction)
+                {
+                    @:OneAction
+                }
+                @if (item.EndDate != null)
+                {
+                    @item.EndDate
+                }
+                <hr>
+            </td>
+        </tr>
+    }
+        <tr><td colspan="2" align="right"><a asp-controller="Task" asp-action="Edit" asp-route-ProjectId="@Model.Projects.First().Id">Новая задача</a></td></tr>
+</table>

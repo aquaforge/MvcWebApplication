@@ -91,8 +91,9 @@ namespace AquaG.TasksMVC.Controllers
         //    return View(taskModel);
         //}
 
-        //// GET: Task/Edit/5
-        //public async Task<IActionResult> Edit(int? id)
+        // GET: Task/Edit/5
+
+        //public async Task<IActionResult> Edit(int? id, int? projectID)
         //{
         //    if (id == null)
         //    {

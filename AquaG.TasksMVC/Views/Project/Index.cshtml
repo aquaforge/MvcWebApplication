@@ -1,40 +1,50 @@
 ﻿@model AquaG.TasksMVC.ViewModels.UserAllViewModel
 
 @{
-    ViewData["Title"] = "Список проектов и задач";
+    ViewData["Title"] = "Проекты и задачи";
 }
-<h5>Входящие задачи</h5>
+    <h5>Входящие задачи</h5>
 
-
-@{
-    if (Model.Tasks.Count() > 0)
-    {
-        await Html.RenderPartialAsync("/Views/Task/_TaskList.cshtml", Model.Tasks);
-}
-    else
-    {
-        @:<br><br><br><br><br>
-    }
-}
-<a asp-controller="Task" asp-action="Edit">Новая задача</a>
-<hr>
-
-<h5>Проекты</h5>
 <table width="100%">
-    @foreach (var item in Model.Projects)
+    @foreach (var item in Model.Tasks)
     {
         <tr>
-            <td align="left">
-                <a asp-action="Index" asp-route-id="@item.Id">@item.Caption</a>
-                <hr>
-            </td>
-            <td align="right">
-                @item.NumberOfTasks задач
+            <td align="left"><a asp-controller="Task" asp-action="Edit" asp-route-id="@item.Id">@item.Caption</a><hr></td>
+            <td align="right">&nbsp;
+                @if (item.IsOneAction)
+                {
+                    @:OneAction
+                }
+                @if (item.EndDate != null)
+                {
+                    @item.EndDate
+                }
                 <hr>
             </td>
         </tr>
     }
-    <tr><td colspan="2" align="right"><a asp-action="Edit">Новый проект</a></td></tr>
+        <tr><td colspan="2" align="right"><a asp-controller="Task" asp-action="Edit">Новая задача</a></td></tr>
 </table>
+
+<hr>
+
+    <h5>Проекты</h5>
+    <table width="100%">
+        @foreach (var item in Model.Projects)
+        {
+            <tr>
+                <td align="left">
+                    <a asp-action="Index" asp-route-id="@item.Id">@item.Caption</a>
+                    <hr>
+                </td>
+                <td align="right">
+                    @item.NumberOfTasks задач
+                    <hr>
+                </td>
+            </tr>
+        }
+        <tr><td colspan="2" align="right"><a asp-action="Edit">Новый проект</a></td></tr>
+    </table>
+
 
 
