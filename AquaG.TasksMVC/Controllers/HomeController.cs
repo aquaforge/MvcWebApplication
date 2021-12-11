@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace AquaG.TasksMVC.Controllers
 {
-    public class HomeController : BaseController
+    public class HomeController : Controller
     {
         public IActionResult Index()
         {

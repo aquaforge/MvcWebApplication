@@ -15,6 +15,7 @@ using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using System;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace AquaG.TasksMVC.Controllers
 {
@@ -25,7 +26,30 @@ namespace AquaG.TasksMVC.Controllers
         private SignInManager<User> _signInManager;
         private ILogger<BaseController> _logger;
 
-        public TasksDbContext _DI_Db
+        private User _authorizedUser;
+        protected User GetAuthorizedUser()
+        {
+            if (User.Identity.IsAuthenticated && _authorizedUser == null)
+                _authorizedUser = DI_UserManager.FindByEmailAsync(User.Identity.Name).GetAwaiter().GetResult();
+
+            return _authorizedUser;
+        }
+
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            GetAuthorizedUser();
+
+            base.OnActionExecuting(context);
+        }
+
+
+
+
+
+
+
+
+        public TasksDbContext DI_Db
         {
             get
             {
@@ -63,7 +87,7 @@ namespace AquaG.TasksMVC.Controllers
 
         public BaseController()
         {
-
+            //Console.WriteLine(HttpContext.Request.Path);
         }
 
         public override RedirectResult Redirect(string url)

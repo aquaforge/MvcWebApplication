@@ -16,43 +16,11 @@ namespace AquaG.TasksMVC.Controllers
     [Authorize] //[Authorize(Roles = "admin")]
     public class ProjectController : BaseController
     {
-        private User _authorizedUser;
-        private User GetAuthorizedUser()
-        {
-            if (_authorizedUser == null) _authorizedUser = DI_UserManager.FindByEmailAsync(User.Identity.Name).GetAwaiter().GetResult();
-            return _authorizedUser;
-        }
+
         public ProjectController() : base() { }
 
 
-        private static TaskModel GetTaskModelFromDbModel(TaskInfo ti)
-        {
-            TaskModel tm = new();
-
-            if (ti != null)
-            {
-                tm.Id = ti.Id;
-                tm.Project = ti.Project;
-
-                tm.Caption = ti.Caption;
-                tm.Description = ti.Description;
-
-                tm.CreationDate = ti.CreationDate;
-                tm.LastModified = ti.LastModified;
-
-                tm.IsOneAction = ti.IsOneAction;
-                tm.IsCompleted = ti.IsCompleted;
-                tm.IsDeleted = ti.IsDeleted;
-
-                tm.StartDate = ti.StartDate;
-                tm.EndDate = ti.EndDate;
-            }
-
-            return tm;
-
-        }
-
-        private static ProjectModel GetProjectModelFromDbModel(Project p)
+        public static ProjectModel GetProjectModelFromDbModel(Project p)
         {
             ProjectModel m = new();
 
@@ -69,7 +37,7 @@ namespace AquaG.TasksMVC.Controllers
             return m;
         }
 
-        private void UpdateDbModel(Project p, ProjectModel m)
+        public void UpdateDbModel(Project p, ProjectModel m)
         {
             if (p.Id != m.Id) throw new ArgumentException("обновление не того проекта");
             if (p.User != GetAuthorizedUser()) throw new ArgumentException("другой пользователь");
@@ -108,11 +76,9 @@ namespace AquaG.TasksMVC.Controllers
                 .OrderByDescending(t => t.LastModified).ToArray();
             foreach (var ti in taskinfos)
             {
-                taskModels.Add(GetTaskModelFromDbModel(ti));
+                taskModels.Add(TaskController.GetTaskModelFromDbModel(ti));
             }
-            ViewBag.Tasks = taskModels.ToArray();
-
-            return View(projectModels.ToArray());
+            return View(new UserAllViewModel() { Projects = projectModels, Tasks = taskModels });
         }
 
 
@@ -207,7 +173,7 @@ namespace AquaG.TasksMVC.Controllers
             if (authUser == null) return Unauthorized();
 
             var project = await DI_Db.Projects.FirstOrDefaultAsync((p => p.Id == id && p.User == authUser));
-            if (project == null) return BadRequest(); 
+            if (project == null) return BadRequest();
 
             DI_Db.Projects.Remove(project);
             await DI_Db.SaveChangesAsync();

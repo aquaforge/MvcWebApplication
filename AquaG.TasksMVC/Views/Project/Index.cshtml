@@ -3,28 +3,21 @@
 @{
     ViewData["Title"] = "Список проектов и задач";
 }
-<h5>Отдельные задачи</h5>
-<table width="100%">
-    @foreach (var item in Model.Tasks)
-    {
-        <tr>
-            <td align="left"><a asp-controller="Task" asp-action="Edit" asp-route-id="@item.Id">@item.Caption</a><hr></td>
-            <td align="right">&nbsp;
-                @if (item.IsOneAction)
-                {
-                    @:OneAction
-                }
-                @if (item.EndDate != null)
-                {
-                    @item.EndDate
-                }
-                <hr>
-            </td>
-        </tr>
-    }
-    <tr><td colspan="2" align="right"><a asp-controller="Task" asp-action="Edit">Новая задача</a></td></tr>
-</table>
+<h5>Входящие задачи</h5>
 
+
+@{
+    if (Model.Tasks.Count() > 0)
+    {
+        await Html.RenderPartialAsync("/Views/Task/_TaskList.cshtml", Model.Tasks);
+}
+    else
+    {
+        @:<br><br><br><br><br>
+    }
+}
+<a asp-controller="Task" asp-action="Edit">Новая задача</a>
+<hr>
 
 <h5>Проекты</h5>
 <table width="100%">
@@ -32,13 +25,11 @@
     {
         <tr>
             <td align="left">
-                <a asp-action="Details" asp-route-id="@item.Id">@item.Caption</a>
-                <br><a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
+                <a asp-action="Index" asp-route-id="@item.Id">@item.Caption</a>
                 <hr>
             </td>
             <td align="right">
                 @item.NumberOfTasks задач
-                <br>
                 <hr>
             </td>
         </tr>

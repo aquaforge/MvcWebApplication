@@ -14,7 +14,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Rewrite;
-using AquaG.TasksMVC.Data;
 
 namespace AquaG.TasksMVC
 {
@@ -52,9 +51,6 @@ namespace AquaG.TasksMVC
 
             services.AddControllersWithViews();
             services.AddControllers();
-
-            services.AddDbContext<AquaGTasksMVCContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("AquaGTasksMVCContext")));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -68,7 +64,7 @@ namespace AquaG.TasksMVC
                 if (!context.Response.HasStarted && (statusCode == 400 || statusCode == 401 || statusCode == 404))
                 {
                     context.Items["originalPath"] = context.Request.Path.Value;
-                    context.Request.Path = $"~/Home/Error/{statusCode}";
+                    context.Request.Path = $"/Home/Error/{statusCode}";
                     await next();
                 }
 
@@ -77,7 +73,7 @@ namespace AquaG.TasksMVC
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
             else
-                app.UseExceptionHandler("~/Home/Error");
+                app.UseExceptionHandler("/Home/Error");
 
             app.UseRewriter(new RewriteOptions().AddRedirect("(.*)/$", "$1"));
 

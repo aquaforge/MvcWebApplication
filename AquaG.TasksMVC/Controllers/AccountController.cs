@@ -111,7 +111,7 @@ namespace AquaG.TasksMVC.Controllers
         //};
         //    //string role = User.FindFirst(x => x.Type == ClaimsIdentity.DefaultRoleClaimType).Value;
         //    //[Authorize(Roles = "admin")]
-        //    //[Authorize(Policy ="OnlyForLondon")]
+        //    //[Authorize(Policy ="paid")]
 
         //    ClaimsIdentity id = new(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
         //    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));

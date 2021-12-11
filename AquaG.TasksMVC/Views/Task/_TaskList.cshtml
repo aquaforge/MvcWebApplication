@@ -1,0 +1,21 @@
+﻿@model IEnumerable<AquaG.TasksMVC.ViewModels.TaskModel>
+
+<table width="100%">
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td align="left"><a asp-controller="Task" asp-action="Edit" asp-route-id="@item.Id">@item.Caption</a><hr></td>
+            <td align="right">&nbsp;
+                @if (item.IsOneAction)
+                {
+                    @:OneAction
+                }
+                @if (item.EndDate != null)
+                {
+                    @item.EndDate
+                }
+                <hr>
+            </td>
+        </tr>
+    }
+</table>
