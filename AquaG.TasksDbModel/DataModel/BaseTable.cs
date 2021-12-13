@@ -14,11 +14,6 @@ namespace AquaG.TasksDbModel
 
         [MaxLength(2000)] public string Description { get; set; }
 
-        public BaseTable() { }
-        public BaseTable(string caption, string description)
-        {
-            Caption = caption;
-            Description = description;
-        }
+
     }
 }

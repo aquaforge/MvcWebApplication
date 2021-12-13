@@ -31,6 +31,8 @@ namespace AquaG.TasksMVC.Controllers
 
                 model.StartDate = task.StartDate;
                 model.EndDate = task.EndDate;
+
+                model.IsCompleted = task.IsCompleted;
             }
             return model;
         }
@@ -45,6 +47,9 @@ namespace AquaG.TasksMVC.Controllers
             task.Description = model.Description;
             task.StartDate = model.StartDate;
             task.EndDate = model.EndDate;
+            task.IsCompleted = model.IsCompleted;
+
+            task.LastModidied = DateTime.Now;
         }
 
         //[Route("Task/{id}")]
@@ -84,7 +89,7 @@ namespace AquaG.TasksMVC.Controllers
                     _db.TaskInfos.Add(task);
                 }
                 await _db.SaveChangesAsync();                 //catch (DbUpdateConcurrencyException)
-                return RedirectToAction("Index","Project", new { id = model.ProjectId });
+                return RedirectToAction("Index", "Project", new { id = model.ProjectId });
             }
 
             return View(model);
@@ -114,11 +119,31 @@ namespace AquaG.TasksMVC.Controllers
 
             int? projectId = task.ProjectId;
 
-            _db.TaskInfos.Remove (task);
+            _db.TaskInfos.Remove(task);
             await _db.SaveChangesAsync();
 
-            return RedirectToAction("Index", "Project", new {id = projectId});
+            return RedirectToAction("Index", "Project", new { id = projectId });
         }
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> Complete(int id, int? projectId)
+        {
+            if (_authorizedUser == null) return Unauthorized();
+
+            var task = await _db.TaskInfos.FirstOrDefaultAsync((t => t.Id == id && t.User == _authorizedUser));
+            if (task == null) return BadRequest();
+
+            if (task.ProjectId != projectId) return BadRequest();
+            task.IsCompleted = true;
+            task.LastModidied = DateTime.Now;
+            await _db.SaveChangesAsync();
+
+            return RedirectToAction("Index", "Project", new { id = projectId });
+        }
+
+
 
 
     }

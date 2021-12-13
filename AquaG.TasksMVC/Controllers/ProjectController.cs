@@ -39,6 +39,7 @@ namespace AquaG.TasksMVC.Controllers
             if (p.User != _authorizedUser) throw new ArgumentException("другой пользователь");
             p.Caption = m.Caption;
             p.Description = m.Description;
+            p.LastModidied=DateTime.Now;
         }
 
 
@@ -52,14 +53,14 @@ namespace AquaG.TasksMVC.Controllers
 
             if (_authorizedUser == null) return Unauthorized();
 
-            var projectModels = new List<ProjectModel>();
             var projects = _db.Projects
                 .Where(p => p.User == _authorizedUser  && (id == null || p.Id == id))
-                .OrderBy(p => p.Caption)
+                .OrderByDescending(p => p.LastModidied)
                 .ToArray();
 
             if (id != null && (projects == null || projects.Length == 0)) return BadRequest();
-            
+
+            var projectModels = new List<ProjectModel>();
             foreach (var p in projects)
             {
                 ProjectModel m = GetProjectModelFromDbModel(p);
@@ -71,17 +72,17 @@ namespace AquaG.TasksMVC.Controllers
 
             var taskModels = new List<TaskModel>();
             var taskinfos = _db.TaskInfos
-                .Where(t => t.User == _authorizedUser && !t.IsCompleted && t.ProjectId == id)
-                .OrderBy(t => t.Caption).ToArray();
+                .Where(t => t.User == _authorizedUser && (id == null || t.ProjectId == id))
+                .OrderBy(t => t.IsCompleted).ThenByDescending(t=>t.LastModidied).ToArray();
             foreach (var ti in taskinfos)
-            {
                 taskModels.Add(TaskController.GetTaskModelFromDbModel(ti));
-            }
+
             return View((id == null) ? "Index" : "Details", new UserAllViewModel() { Projects = projectModels, Tasks = taskModels });
         }
 
 
         [HttpGet]
+        [Route("Project/Edit/{id?}")]
         public async Task<IActionResult> Edit(int? id)
         {
             ProjectModel m = new();
@@ -121,7 +122,7 @@ namespace AquaG.TasksMVC.Controllers
                     _db.Projects.Add(project);
                 }
                 await _db.SaveChangesAsync();                 //catch (DbUpdateConcurrencyException)
-                return RedirectToAction("Index", "Project", new { id });
+                return RedirectToAction("Index", "Project", new { project.Id });
             }
 
             return View(model);
@@ -145,6 +146,12 @@ namespace AquaG.TasksMVC.Controllers
 
             var project = await _db.Projects.FirstOrDefaultAsync((p => p.Id == id && p.User == _authorizedUser));
             if (project == null) return BadRequest();
+
+            if(_db.TaskInfos.Any(t => t.ProjectId == id))
+            {
+                ModelState.AddModelError("id", "Нельзя удалить непустой проект.");
+                return View("Delete", GetProjectModelFromDbModel(project));
+            }
 
             _db.Projects.Remove(project);
             await _db.SaveChangesAsync();

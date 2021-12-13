@@ -5,29 +5,53 @@
 {
     <tr>
         <td align="left">
-            <a asp-controller="Task" asp-action="Edit" asp-route-id="@item.Id"
-           asp-route-ProjectId="@Model.Projects.FirstOrDefault()?.Id.ToString()">@item.Caption</a>
+            @if (Model.Projects != null && Model.Projects.Count != 0)
+            {
+                <a href="/Task/Edit/@item.Id?ProjectId=@Model.Projects.First().Id" .ToString();}">@item.Caption</a>
+                <br>
+                @if (!item.IsCompleted)
+                {
+                    <a href="/Task/Complete/@item.Id?ProjectId=@Model.Projects.First().Id" .ToString();}">Завершить</a>
+                }
+
+            }
+            else
+            {
+                <a href="/Task/Edit/@item.Id">@item.Caption</a>
+                <br>
+                @if (!item.IsCompleted)
+                {
+                    <a href="/Task/Complete/@item.Id">Завершить</a>
+                }
+            }
             <hr>
         </td>
         <td align="right">
+            @if (item.IsCompleted)
+            {
+                @:Завершена
+            }
             @if (item.EndDate != null)
             {
                 @item.EndDate?.ToShortDateString()
                 @:&nbsp;
                 @item.EndDate?.ToShortTimeString()
             }
-            else
-            {
-                @:&nbsp;
-            }
+            <br>
             <hr>
         </td>
     </tr>
 }
 <tr>
     <td colspan="2" align="right">
-        <a asp-controller="Task" asp-action="Edit"
-           asp-route-ProjectId="@Model.Projects.FirstOrDefault()!.Id.ToString()">Новая задача</a>
+        @if (Model.Projects != null && Model.Projects.Count != 0)
+        {
+            <a href="/Task/Edit?ProjectId=@Model.Projects.FirstOrDefault().Id" .ToString();}">Новая задача</a>
+        }
+        else
+        {
+            <a href="/Task/Edit">Новая задача</a>
+        }
     </td>
 </tr>
 

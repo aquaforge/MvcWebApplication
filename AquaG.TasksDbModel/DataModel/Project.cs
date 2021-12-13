@@ -8,9 +8,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AquaG.TasksDbModel
 {
-    public class Project : BaseTable
+    public class Project : BaseTableNext
     {
         [Required] public User User { get; set; }
+
 
         public ICollection<TaskInfo> TaskInfos { get; set; }
     }

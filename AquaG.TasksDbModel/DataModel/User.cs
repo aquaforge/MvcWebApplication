@@ -10,6 +10,7 @@ namespace AquaG.TasksDbModel
 {
     public class User : IdentityUser//<int>
     {
+        public DateTime CreationDate { get; set; }=DateTime.Now;
         public ICollection<Project> Projects { get; set; }
         public ICollection<TaskInfo> TaskInfos { get; set; }
 

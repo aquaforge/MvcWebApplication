@@ -48,39 +48,45 @@ namespace AquaG.TasksMVC.Controllers
         protected async Task<IActionResult> GetOneRecordFromDbAsActionResult<TSource, TOutput>(
             System.Linq.IQueryable<TSource> source,
             System.Linq.Expressions.Expression<Func<TSource, bool>> predicate,
-            GetViewModelFromOneRecord<TOutput, TSource> func)
+            GetViewModelFromOneRecord<TOutput, TSource> func,
+            string viewName = null)
         {
             if (_authorizedUser == null) return Unauthorized();
 
             TSource t = await source.FirstOrDefaultAsync(predicate);
             if (t == null) return BadRequest();
 
-            return View(func.Invoke(t));
+            if (viewName == null)
+                return View(func.Invoke(t));
+            else
+                return View(viewName, func.Invoke(t));
         }
 
-        //protected async Task<TOutput> GetOneRecordFromDb<TSource, TOutput>(
-        //    System.Linq.IQueryable<TSource> source,
-        //    System.Linq.Expressions.Expression<Func<TSource, bool>> predicate,
-        //    GetViewModelFromOneRecord<TOutput, TSource> func)
-        //{
-        //    if (_authorizedUser == null) throw new ArgumentException("GetOneRecordFromDb");
+    
 
-        //    TSource t = await source.FirstOrDefaultAsync(predicate);
-        //    if (t == null) throw new ArgumentException("GetOneRecordFromDb");  
+    //protected async Task<TOutput> GetOneRecordFromDb<TSource, TOutput>(
+    //    System.Linq.IQueryable<TSource> source,
+    //    System.Linq.Expressions.Expression<Func<TSource, bool>> predicate,
+    //    GetViewModelFromOneRecord<TOutput, TSource> func)
+    //{
+    //    if (_authorizedUser == null) throw new ArgumentException("GetOneRecordFromDb");
 
-        //    return func.Invoke(t);
-        //}
+    //    TSource t = await source.FirstOrDefaultAsync(predicate);
+    //    if (t == null) throw new ArgumentException("GetOneRecordFromDb");  
 
-
-
-        [NonAction]
-        public override RedirectResult Redirect(string url)
-        {
-            // Редирект только внутри сайта
-            url = (!string.IsNullOrEmpty(url) && Url.IsLocalUrl(url)) ? url : "/";
-            return base.Redirect(url);
-        }
+    //    return func.Invoke(t);
+    //}
 
 
+
+    [NonAction]
+    public override RedirectResult Redirect(string url)
+    {
+        // Редирект только внутри сайта
+        url = (!string.IsNullOrEmpty(url) && Url.IsLocalUrl(url)) ? url : "/";
+        return base.Redirect(url);
     }
+
+
+}
 }

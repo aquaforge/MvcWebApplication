@@ -10,7 +10,7 @@ namespace AquaG.TasksMVC.ViewModels
 {
     public class UserAllViewModel
     {
-        public IEnumerable<ProjectModel> Projects { get; set; }
-        public IEnumerable<TaskModel> Tasks { get; set; }
+        public List<ProjectModel> Projects { get; set; }
+        public List<TaskModel> Tasks { get; set; }
     }
 }
