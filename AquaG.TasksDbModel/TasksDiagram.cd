@@ -3,36 +3,26 @@
   <Class Name="AquaG.TasksDbModel.BaseTable">
     <Position X="0.5" Y="1" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>QAACAAAAAAAgAAAAAAAAAAACAAAAAAAACAAAAQAAAAA=</HashCode>
+      <HashCode>AAACAAAAAAAgAAAAAAAAAAAAAAAAAAAACAAAAAAAAAA=</HashCode>
       <FileName>DataModel\BaseTable.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="AquaG.TasksDbModel.Project">
     <Position X="7" Y="0.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>EAABAAAAAAAAAAAAEAAAQAAAAAQAAAAAAiAAAAAAAAA=</HashCode>
+      <HashCode>AAABAAAAAAAAAAAAAAAAQAAAAAQAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>DataModel\Project.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="AquaG.TasksDbModel.TaskInfo">
     <Position X="7" Y="4" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>EAAhAAAAAAAAAAAEIAAACAAgBAAAABACAAAAAEAAAAA=</HashCode>
+      <HashCode>AAABAAAAAAAAAAAAAAAACAAgAAAAABAAAAAAAEAAAAA=</HashCode>
       <FileName>DataModel\TaskInfo.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="AquaG.TasksDbModel.TaskNote">
-    <Position X="9.5" Y="5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAQEAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>DataModel\TaskNote.cs</FileName>
-    </TypeIdentifier>
-    <ShowAsAssociation>
-      <Property Name="TaskInfo" />
-    </ShowAsAssociation>
-  </Class>
   <Class Name="Microsoft.AspNetCore.Identity.IdentityUser&lt;TKey&gt;">
-    <Position X="11.25" Y="0.5" Width="2.5" />
+    <Position X="10.5" Y="0.5" Width="2.5" />
     <TypeIdentifier />
   </Class>
   <Font Name="Segoe UI" Size="9" />

@@ -4,38 +4,15 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AquaG.TasksMVC.ViewModels
 {
-    public class TaskModel
+    public class TaskModel :BaseTable
     {
-
-        [Required] public int Id { get; set; } = 0;
-
-        [Required] [MaxLength(250)] public string Caption { get; set; }
-
-        [MaxLength(2000)] public string Description { get; set; }
-
-        public DateTime? CreationDate { get; set; } = DateTime.Now;
-
-        public DateTime? LastModified { get; set; } = DateTime.Now;
-
-
-        [Required] public bool IsDeleted { get; set; } = false;
-
-        public int? ProjectID { get; set; }
-        public Project Project { get; set; }
+        public int? ProjectId { get; set; }
 
         public DateTime? StartDate { get; set; }
 
         public DateTime? EndDate { get; set; }
 
-        [Required] public bool IsNotifyNeeded { get; set; } = false;
-
-        public ItemPriority Priority { get; set; } = ItemPriority.Normal;
-
         [Required] public bool IsCompleted { get; set; } = false;
-
-        [Required] public bool IsOneAction { get; set; } = false;
-
-        [Required] public int OrderId { get; set; } = 0;
 
     }
 }

@@ -24,13 +24,6 @@
 
            <input type="hidden" asp-for="Id" />
 
-@if (Model.Id != null && Model.Id != 0)
-{           
-           <div class="form-group form-check">
-               @Html.DisplayNameFor(model => model.LastModified)
-               @Model.LastModified
-            </div>
-}
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>

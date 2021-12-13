@@ -12,15 +12,6 @@ namespace AquaG.TasksDbModel
     {
         [Required] public User User { get; set; }
 
-        public int? ParentId { get; set; }
-        public Project Parent { get; set; }
-
-        public bool IsActive { get; set; } = true;
-
-        public ICollection<TaskInfo> TaskInfo { get; set; }
-
-        [Required] public int OrderId { get; set; } = 0;
-        [Required] public int SubLevelNo { get; set; } = 0;
-
+        public ICollection<TaskInfo> TaskInfos { get; set; }
     }
 }

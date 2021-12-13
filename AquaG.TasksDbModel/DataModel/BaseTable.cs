@@ -14,26 +14,11 @@ namespace AquaG.TasksDbModel
 
         [MaxLength(2000)] public string Description { get; set; }
 
-        [Required] public DateTime CreationDate { get; set; } = DateTime.Now;
-
-        [Required] public DateTime LastModified { get; set; } = DateTime.Now;
-
-
-        [Required] public bool IsDeleted { get; set; } = false;
-
         public BaseTable() { }
         public BaseTable(string caption, string description)
         {
             Caption = caption;
             Description = description;
         }
-
-        // protected void OnModelCreating(ModelBuilder modelBuilder)
-        //{
-        //    modelBuilder.Entity<BaseTable>()
-        //        .Property(t => t.CreationDate)
-        //        .HasDefaultValueSql("GETDATE()");
-
-
     }
 }

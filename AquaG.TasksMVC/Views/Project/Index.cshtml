@@ -1,50 +1,37 @@
-﻿@model AquaG.TasksMVC.ViewModels.UserAllViewModel
+﻿@using AquaG.TasksMVC.ViewModels
+@model AquaG.TasksMVC.ViewModels.UserAllViewModel
 
 @{
     ViewData["Title"] = "Проекты и задачи";
 }
-    <h5>Входящие задачи</h5>
+<table>
+    <tr><td colspan="2" align="left"><h5>Входящие задачи</h5></td></tr>
+    @await Html.PartialAsync(@"/Views/Task/_TaskList.cshtml", new UserAllViewModel {Projects=null,Tasks=Model.Tasks})
 
-<table width="100%">
-    @foreach (var item in Model.Tasks)
+    <tr><td colspan="2" align="left"><br><br><h5>Проекты</h5></td></tr>
+
+    @foreach (var item in Model.Projects)
     {
         <tr>
-            <td align="left"><a asp-controller="Task" asp-action="Edit" asp-route-id="@item.Id">@item.Caption</a><hr></td>
-            <td align="right">&nbsp;
-                @if (item.IsOneAction)
+            <td align="left">
+                <a asp-action="Index" asp-route-id="@item.Id">@item.Caption</a>
+                <hr>
+            </td>
+            <td align="right">
+                @if (@item.NumberOfTasks > 0)
                 {
-                    @:OneAction
+                    @:задач: @item.NumberOfTasks
                 }
-                @if (item.EndDate != null)
+                else
                 {
-                    @item.EndDate
+                    @: &nbsp;
                 }
                 <hr>
             </td>
         </tr>
     }
-        <tr><td colspan="2" align="right"><a asp-controller="Task" asp-action="Edit">Новая задача</a></td></tr>
+    <tr><td colspan="2" align="right"><a asp-action="Edit">Новый проект</a></td></tr>
 </table>
-
-<hr>
-
-    <h5>Проекты</h5>
-    <table width="100%">
-        @foreach (var item in Model.Projects)
-        {
-            <tr>
-                <td align="left">
-                    <a asp-action="Index" asp-route-id="@item.Id">@item.Caption</a>
-                    <hr>
-                </td>
-                <td align="right">
-                    @item.NumberOfTasks задач
-                    <hr>
-                </td>
-            </tr>
-        }
-        <tr><td colspan="2" align="right"><a asp-action="Edit">Новый проект</a></td></tr>
-    </table>
 
 
 

@@ -1,0 +1,35 @@
+﻿@using AquaG.TasksMVC.ViewModels
+@model AquaG.TasksMVC.ViewModels.UserAllViewModel
+
+@foreach (TaskModel item in Model.Tasks)
+{
+    <tr>
+        <td align="left">
+            <a asp-controller="Task" asp-action="Edit" asp-route-id="@item.Id"
+           asp-route-ProjectId="@Model.Projects.FirstOrDefault()?.Id.ToString()">@item.Caption</a>
+            <hr>
+        </td>
+        <td align="right">
+            @if (item.EndDate != null)
+            {
+                @item.EndDate?.ToShortDateString()
+                @:&nbsp;
+                @item.EndDate?.ToShortTimeString()
+            }
+            else
+            {
+                @:&nbsp;
+            }
+            <hr>
+        </td>
+    </tr>
+}
+<tr>
+    <td colspan="2" align="right">
+        <a asp-controller="Task" asp-action="Edit"
+           asp-route-ProjectId="@Model.Projects.FirstOrDefault()!.Id.ToString()">Новая задача</a>
+    </td>
+</tr>
+
+
+

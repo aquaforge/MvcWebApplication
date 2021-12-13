@@ -24,20 +24,10 @@ namespace AquaG.TasksMVC.Controllers
             if (task != null)
             {
                 model.Id = task.Id;
-                model.ProjectID = task.ProjectID;
-                model.Project = task.Project;
+                model.ProjectId = task.ProjectId;
 
                 model.Caption = task.Caption;
                 model.Description = task.Description;
-
-                model.CreationDate = task.CreationDate;
-                model.LastModified = task.LastModified;
-
-                model.IsOneAction = task.IsOneAction;
-                model.IsCompleted = task.IsCompleted;
-                model.IsDeleted = task.IsDeleted;
-                model.IsNotifyNeeded = task.IsNotifyNeeded;
-                model.OrderId = task.OrderId;
 
                 model.StartDate = task.StartDate;
                 model.EndDate = task.EndDate;
@@ -49,37 +39,31 @@ namespace AquaG.TasksMVC.Controllers
         {
             if (task.Id != model.Id) throw new ArgumentException("обновление не того проекта");
             if (task.User != _authorizedUser) throw new ArgumentException("другой пользователь");
+            task.ProjectId = model.ProjectId;
+
             task.Caption = model.Caption;
             task.Description = model.Description;
-            task.LastModified = DateTime.Now;
-            task.ProjectID = model.ProjectID;
-            task.Project = model.Project;
             task.StartDate = model.StartDate;
             task.EndDate = model.EndDate;
-            task.IsDeleted = model.IsDeleted;
-            task.IsOneAction = model.IsOneAction;
-            task.Priority = model.Priority;
-            task.IsNotifyNeeded = model.IsNotifyNeeded;
-            task.OrderId = model.OrderId;
         }
 
-        [Route("Task/{id}")]
+        //[Route("Task/{id}")]
         [HttpGet]
-        public async Task<IActionResult> Edit(int id, int? projectID)
+        public async Task<IActionResult> Edit(int id, int? projectId)
         {
             if (id == 0)
-                return View(new TaskModel() { ProjectID = projectID });
+                return View(new TaskModel() { ProjectId = projectId });
 
             return await GetOneRecordFromDbAsActionResult<TaskInfo, TaskModel>(
                     _db.TaskInfos,
-                    (t => t.Id == id && t.User == _authorizedUser && (projectID == null || t.ProjectID == projectID)),
+                    (t => t.Id == id && t.User == _authorizedUser && (projectId == null || t.ProjectId == projectId)),
                     GetTaskModelFromDbModel);
         }
 
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Caption,Description,CreationDate,LastModified,IsDeleted,StartDate,EndDate,IsNotifyNeeded,Priority,IsCompleted,IsOneAction,OrderId")] TaskModel model)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Caption,Description,ProjectId,StartDate,EndDate,IsCompleted")] TaskModel model)
         {
             if (id != model.Id) return BadRequest();
             if (_authorizedUser == null) return Unauthorized();
@@ -100,7 +84,7 @@ namespace AquaG.TasksMVC.Controllers
                     _db.TaskInfos.Add(task);
                 }
                 await _db.SaveChangesAsync();                 //catch (DbUpdateConcurrencyException)
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index","Project", new { id = model.ProjectId });
             }
 
             return View(model);
@@ -128,12 +112,12 @@ namespace AquaG.TasksMVC.Controllers
             var task = await _db.TaskInfos.FirstOrDefaultAsync((t => t.Id == id && t.User == _authorizedUser));
             if (task == null) return BadRequest();
 
-            int? projectID = task.ProjectID;
+            int? projectId = task.ProjectId;
 
-            task.IsDeleted = true;
+            _db.TaskInfos.Remove (task);
             await _db.SaveChangesAsync();
 
-            return RedirectToAction("/Project" + (projectID == null ? "" : $"/{projectID}"));
+            return RedirectToAction("Index", "Project", new {id = projectId});
         }
 
 

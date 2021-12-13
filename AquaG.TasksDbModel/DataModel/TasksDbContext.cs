@@ -9,6 +9,8 @@ Update-Database
 
 [ForeignKey("CompanyInfoKey")] 
  
+Add-Migration Initial
+
 Remove-Migration
 Get-Migration
 Update-Help
@@ -17,19 +19,25 @@ Get-Help Update-Database -Online
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
 
-https://docs.microsoft.com/ru-ru/aspnet/core/data/ef-mvc/complex-data-model?view=aspnetcore-3.1
-https://docs.microsoft.com/en-us/ef/core/modeling/entity-properties?tabs=data-annotations%2Cwithout-nrt#included-and-%20%D0%B8%D1%81%D0%BA%D0%BB%D1%8E%D1%87%D0%B5%D0%BD%D0%B8%D1%8F-%D1%81%D0%B2%D0%BE%D0%B9%D1%81%D1%82%D0%B2%D0%B0
+db.Database.ExecuteSqlRaw(
+    @"CREATE VIEW View_BlogPostCounts AS
+        SELECT b.Name, Count(p.PostId) as PostCount
+        FROM Blogs b
+        JOIN Posts p on p.BlogId = b.BlogId
+        GROUP BY b.Name");
+
+    modelBuilder
+        .Entity<BlogPostsCount>(
+            eb =>
+            {
+                eb.HasNoKey();
+                eb.ToView("View_BlogPostCounts");
+                eb.Property(v => v.BlogName).HasColumnName("Name");
+            });
 
  */
-
-
-
 namespace AquaG.TasksDbModel
 {
-
-
-
-
     public class TasksDbContext : IdentityDbContext//<User, Role, int>
     {
         public TasksDbContext() : base()
@@ -52,9 +60,19 @@ namespace AquaG.TasksDbModel
             builder.UseSqlServer(connectionString);
         }
 
-        //protected override void OnModelCreating(ModelBuilder builder)
-        //{
-        //    builder.Entity<User>().HasIndex(u => u.NormalizedEmail).IsUnique();
-        //}
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Project>().HasOne(p => p.User).WithMany(u => u.Projects).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<TaskInfo>().HasOne(t => t.Project).WithMany(p => p.TaskInfos).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<TaskInfo>().HasOne(t => t.User).WithMany(u => u.TaskInfos).OnDelete(DeleteBehavior.Restrict);
+
+
+            //modelBuilder.Entity<User>().HasIndex(u => u.NormalizedEmail).IsUnique();
+            modelBuilder.Entity<Project>().ToTable("Projects", t => t.IsTemporal());
+            modelBuilder.Entity<TaskInfo>().ToTable("TaskInfos", t => t.IsTemporal());
+
+            base.OnModelCreating(modelBuilder);
+        }
+
     }
 }
