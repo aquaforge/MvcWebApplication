@@ -72,7 +72,7 @@ namespace AquaG.TasksMVC.Controllers
 
             var taskModels = new List<TaskModel>();
             var taskinfos = _db.TaskInfos
-                .Where(t => t.User == _authorizedUser && (id == null || t.ProjectId == id))
+                .Where(t => t.User == _authorizedUser && t.ProjectId == id)
                 .OrderBy(t => t.IsCompleted).ThenByDescending(t=>t.LastModidied).ToArray();
             foreach (var ti in taskinfos)
                 taskModels.Add(TaskController.GetTaskModelFromDbModel(ti));

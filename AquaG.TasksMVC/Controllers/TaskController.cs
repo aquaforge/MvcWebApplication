@@ -130,7 +130,7 @@ namespace AquaG.TasksMVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Complete(int id, int? projectId)
         {
-            if (_authorizedUser == null) return Unauthorized();
+                if (_authorizedUser == null) return Unauthorized();
 
             var task = await _db.TaskInfos.FirstOrDefaultAsync((t => t.Id == id && t.User == _authorizedUser));
             if (task == null) return BadRequest();

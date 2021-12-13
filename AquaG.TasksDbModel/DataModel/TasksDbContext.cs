@@ -5,11 +5,13 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 /*
 Install-Package Microsoft.EntityFrameworkCore.Tools
     
-Update-Database
+
 
 [ForeignKey("CompanyInfoKey")] 
  
 Add-Migration Initial
+Script-Migration Initial
+Update-Database
 
 Remove-Migration
 Get-Migration
@@ -53,12 +55,12 @@ namespace AquaG.TasksDbModel
         public DbSet<Project> Projects { get; set; }
         public DbSet<TaskInfo> TaskInfos { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder builder)
-        {
-            string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=TaskManaderDB;Trusted_Connection=True;";
-            Console.WriteLine(connectionString);
-            builder.UseSqlServer(connectionString);
-        }
+        //protected override void OnConfiguring(DbContextOptionsBuilder builder)
+        //{
+        //    string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=TaskManaderDB;Trusted_Connection=True;";
+        //    Console.WriteLine(connectionString);
+        //    builder.UseSqlServer(connectionString);
+        //}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
