@@ -1,10 +1,12 @@
-﻿@model AquaG.TasksMVC.ViewModels.UserAllViewModel
+﻿@using AquaG.TasksMVC.ViewModels
+@model AquaG.TasksMVC.ViewModels.UserAllViewModel
 
 @{
     ViewData["Title"] = "Задачи по проекту";
 }
 
-<h5>Проект: @Model.Projects.First().Caption</h5>
+<h5>@Model.Projects.First().Caption</h5>
+
 <div>
     <a asp-controller="Project" asp-action="Index" asp-route-id="">К списку</a>
 </div>
@@ -13,9 +15,25 @@
     <a asp-controller="Project" asp-action="Edit" asp-route-id="@Model.Projects.First().Id">Редактировать проект</a>
 </div>
 <br>
-
+<div>
+    @if (Model.Projects != null && Model.Projects.Count != 0)
+    {
+        <a href="/Task/Edit?ProjectId=@Model.Projects.FirstOrDefault().Id" .ToString();}">Новая задача</a>
+    }
+    else
+    {
+        <a href="/Task/Edit">Новая задача</a>
+    }
+</div>
+<br>
 <table>
-@await Html.PartialAsync(@"/Views/Task/_TaskList.cshtml", Model)
+    @await Html.PartialAsync(@"/Views/Task/_TaskList.cshtml", new TaskListPartialModel(){ProjectId=Model.Projects.First().Id,Tasks = Model.Tasks})
+
+    @if (Model.TasksCompleted != null && Model.TasksCompleted.Count != 0)
+    {
+        <tr><td colspan="2" align="left">Закрытые задачи</td></tr>
+        @await Html.PartialAsync(@"/Views/Task/_TaskList.cshtml", new TaskListPartialModel(){ProjectId=Model.Projects.First().Id, Tasks = Model.TasksCompleted})
+    }
 </table>
 
 

@@ -1,95 +1,41 @@
 ﻿@using AquaG.TasksMVC.ViewModels
-@model AquaG.TasksMVC.ViewModels.UserAllViewModel
+@model AquaG.TasksMVC.ViewModels.TaskListPartialModel
 
-<tr>
-    <td colspan="2" align="left">
-        @if (Model.Projects != null && Model.Projects.Count != 0)
-        {
-            <a href="/Task/Edit?ProjectId=@Model.Projects.FirstOrDefault().Id" .ToString();}">Новая задача</a>
-        }
-        else
-        {
-            <a href="/Task/Edit">Новая задача</a>
-        }
-    </td>
-</tr>
-
-@if (Model.Tasks != null && Model.Tasks.Count != 0)
+@foreach (TaskModel item in Model.Tasks)
 {
     <tr>
-        <td colspan="2" align="left">Активные задачи</td>
-    </tr>
-    @foreach (TaskModel item in Model.Tasks)
-    {
-        <tr>
-            <td align="left">
-                @if (Model.IsOneProjectDetails)
+        <td align="left">
+            @if (Model.ProjectId !=null)
+            {
+                <a href="/Task/Edit/@item.Id?ProjectId=@Model.ProjectId">@item.Caption</a>
+            }
+            else
+            {
+                <a href="/Task/Edit/@item.Id">@item.Caption</a>
+            }
+            <br>&nbsp;<hr>
+        </td>
+        <td align="right">
+            @if (!item.IsCompleted)
+            {
+                @if (Model.ProjectId !=null)
                 {
-                    <a href="/Task/Edit/@item.Id?ProjectId=@Model.Projects.First().Id">@item.Caption</a>
-                }
-                else
-                {
-                    <a href="/Task/Edit/@item.Id">@item.Caption</a>
-                }
-                <br>&nbsp;<hr>
-            </td>
-            <td align="right">
-                @if (Model.IsOneProjectDetails)
-                {
-                    <a href="/Task/Complete/@item.Id?ProjectId=@Model.Projects.First().Id" .ToString();}">Завершить</a>
+                    <a href="/Task/Complete/@item.Id?ProjectId=@Model.ProjectId">Завершить</a>
                 }
                 else
                 {
                     <a href="/Task/Complete/@item.Id">Завершить</a>
                 }
-                <br>&nbsp;
-                @if (item.EndDate != null)
-                {
-                    @item.EndDate?.ToShortDateString()
-                    @:&nbsp;
-                    @item.EndDate?.ToShortTimeString()
-                }
-                <hr>
-            </td>
-        </tr>
-    }
-}
-
-@if (Model.TasksCompleted != null && Model.TasksCompleted.Count != 0)
-{
-    <tr>
-        <td colspan="2" align="left">Завершенные задачи</td>
+            }
+            <br>&nbsp;
+            @if (item.EndDate != null)
+            {
+                @item.EndDate?.ToShortDateString()
+                @:&nbsp;
+                @item.EndDate?.ToShortTimeString()
+            }
+            <hr>
+        </td>
     </tr>
-
-    @foreach (TaskModel item in Model.TasksCompleted)
-    {
-        <tr>
-            <td align="left">
-                @if (Model.IsOneProjectDetails)
-                {
-                    <a href="/Task/Edit/@item.Id?ProjectId=@Model.Projects.First().Id">@item.Caption</a>
-                }
-                else
-                {
-                    <a href="/Task/Edit/@item.Id">@item.Caption</a>
-                }
-                <br>&nbsp;<hr>
-            </td>
-            <td align="right">
-                &nbsp;
-                <br>&nbsp;
-                @if (item.EndDate != null)
-                {
-                    @item.EndDate?.ToShortDateString()
-                    @:&nbsp;
-                    @item.EndDate?.ToShortTimeString()
-                }
-                <hr>
-            </td>
-        </tr>
-    }
 }
-
-
-
 
