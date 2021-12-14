@@ -31,8 +31,15 @@ namespace AquaG.TasksMVC
         public void ConfigureServices(IServiceCollection services)
         {
             string connection = Configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<TasksDbContext>(options => options.UseSqlServer(connection));
+            services.AddDbContext<TasksDbContext>(options => options.UseSqlServer(connection), ServiceLifetime.Transient);
 
+
+            //services.ConfigureApplicationCookie(options =>
+            //{
+            //    //options.Cookie.Name = "CookieName";
+            //    options.ExpireTimeSpan = TimeSpan.FromDays(30);
+            //    options.SlidingExpiration = true;
+            //});
 
             services.AddIdentity<User, IdentityRole>(opts =>
            {
@@ -46,6 +53,8 @@ namespace AquaG.TasksMVC
            })
                 .AddEntityFrameworkStores<TasksDbContext>();
 
+            services.AddDistributedMemoryCache();
+            services.AddSession();
 
             services.AddHttpContextAccessor();
 
@@ -85,6 +94,7 @@ namespace AquaG.TasksMVC
             app.UseAuthentication();
             app.UseAuthorization();
 
+            //app.UseSession();
 
             app.UseEndpoints(endpoints =>
             {

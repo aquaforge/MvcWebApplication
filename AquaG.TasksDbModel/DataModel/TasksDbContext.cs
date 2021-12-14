@@ -70,8 +70,8 @@ namespace AquaG.TasksDbModel
 
 
             //modelBuilder.Entity<User>().HasIndex(u => u.NormalizedEmail).IsUnique();
-            modelBuilder.Entity<Project>().ToTable("Projects", t => t.IsTemporal());
-            modelBuilder.Entity<TaskInfo>().ToTable("TaskInfos", t => t.IsTemporal());
+            //modelBuilder.Entity<Project>().ToTable("Projects", t => t.IsTemporal());
+            //modelBuilder.Entity<TaskInfo>().ToTable("TaskInfos", t => t.IsTemporal());
 
             base.OnModelCreating(modelBuilder);
         }

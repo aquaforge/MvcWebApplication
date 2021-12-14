@@ -36,8 +36,14 @@ namespace AquaG.TasksMVC.Controllers
             _logger = HttpContext.RequestServices.GetRequiredService<ILogger<BaseController>>();
 
             if (User.Identity.IsAuthenticated)
+            {
                 _authorizedUser = _userManager.FindByEmailAsync(User.Identity.Name).GetAwaiter().GetResult();
-
+                if (_authorizedUser != null)
+                {
+                    _authorizedUser.LastAccess = DateTime.Now;
+                    _userManager.UpdateAsync(_authorizedUser);
+                }
+            }
 
 
             base.OnActionExecuting(context);
@@ -62,31 +68,31 @@ namespace AquaG.TasksMVC.Controllers
                 return View(viewName, func.Invoke(t));
         }
 
-    
-
-    //protected async Task<TOutput> GetOneRecordFromDb<TSource, TOutput>(
-    //    System.Linq.IQueryable<TSource> source,
-    //    System.Linq.Expressions.Expression<Func<TSource, bool>> predicate,
-    //    GetViewModelFromOneRecord<TOutput, TSource> func)
-    //{
-    //    if (_authorizedUser == null) throw new ArgumentException("GetOneRecordFromDb");
-
-    //    TSource t = await source.FirstOrDefaultAsync(predicate);
-    //    if (t == null) throw new ArgumentException("GetOneRecordFromDb");  
-
-    //    return func.Invoke(t);
-    //}
 
 
+        //protected async Task<TOutput> GetOneRecordFromDb<TSource, TOutput>(
+        //    System.Linq.IQueryable<TSource> source,
+        //    System.Linq.Expressions.Expression<Func<TSource, bool>> predicate,
+        //    GetViewModelFromOneRecord<TOutput, TSource> func)
+        //{
+        //    if (_authorizedUser == null) throw new ArgumentException("GetOneRecordFromDb");
 
-    [NonAction]
-    public override RedirectResult Redirect(string url)
-    {
-        // Редирект только внутри сайта
-        url = (!string.IsNullOrEmpty(url) && Url.IsLocalUrl(url)) ? url : "/";
-        return base.Redirect(url);
+        //    TSource t = await source.FirstOrDefaultAsync(predicate);
+        //    if (t == null) throw new ArgumentException("GetOneRecordFromDb");  
+
+        //    return func.Invoke(t);
+        //}
+
+
+
+        [NonAction]
+        public override RedirectResult Redirect(string url)
+        {
+            // Редирект только внутри сайта
+            url = (!string.IsNullOrEmpty(url) && Url.IsLocalUrl(url)) ? url : "/";
+            return base.Redirect(url);
+        }
+
+
     }
-
-
-}
 }

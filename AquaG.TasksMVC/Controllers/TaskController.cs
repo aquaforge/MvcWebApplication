@@ -8,6 +8,29 @@ using Microsoft.EntityFrameworkCore;
 using AquaG.TasksMVC.ViewModels;
 using AquaG.TasksDbModel;
 
+
+//<select asp-for="Country" asp-items="Model.Countries"></select> 
+//https://docs.microsoft.com/en-us/aspnet/core/mvc/views/working-with-forms?view=aspnetcore-5.0
+
+/*
+     <select asp-for="EnumCountry" 
+            asp-items="Html.GetEnumSelectList<CountryEnum>()">
+    </select>  
+
+     public enum CountryEnum
+    {
+        [Display(Name = "United Mexican States")]
+        Mexico,
+        [Display(Name = "United States of America")]
+        USA,
+        Canada,
+        France,
+        Germany,
+        Spain
+    }
+ * 
+ * */
+
 namespace AquaG.TasksMVC.Controllers
 {
     public class TaskController : BaseController
@@ -39,10 +62,11 @@ namespace AquaG.TasksMVC.Controllers
 
         private void UpdateDbModelTask(TaskInfo task, TaskModel model)
         {
-            if (task.Id != model.Id) throw new ArgumentException("обновление не того проекта");
-            if (task.User != _authorizedUser) throw new ArgumentException("другой пользователь");
-            task.ProjectId = model.ProjectId;
+            if (task.Id != model.Id) throw new ArgumentException("обновление не той задачи");
+            if (task.UserId != _authorizedUser.Id)
+                throw new ArgumentException("другой пользователь");
 
+            task.ProjectId = model.ProjectId;
             task.Caption = model.Caption;
             task.Description = model.Description;
             task.StartDate = model.StartDate;
@@ -78,13 +102,16 @@ namespace AquaG.TasksMVC.Controllers
                 TaskInfo task;
                 if (model.Id != 0)
                 {
-                    task = await _db.TaskInfos.FirstOrDefaultAsync(t => t.Id == model.Id && t.User == _authorizedUser);
+                    task = await _db
+                        .TaskInfos
+                        .Include(t => t.User)
+                        .FirstOrDefaultAsync(t => t.Id == model.Id && t.User == _authorizedUser);
                     if (task == null) return BadRequest();
                     UpdateDbModelTask(task, model);
                 }
                 else
                 {
-                    task = new() { User = _authorizedUser };
+                    task = new() { UserId = _authorizedUser.Id };
                     UpdateDbModelTask(task, model);
                     _db.TaskInfos.Add(task);
                 }
@@ -114,7 +141,9 @@ namespace AquaG.TasksMVC.Controllers
         {
             if (_authorizedUser == null) return Unauthorized();
 
-            var task = await _db.TaskInfos.FirstOrDefaultAsync((t => t.Id == id && t.User == _authorizedUser));
+            var task = await _db.TaskInfos
+                .Include(t => t.User)
+                .FirstOrDefaultAsync(t => t.Id == id && t.User == _authorizedUser);
             if (task == null) return BadRequest();
 
             int? projectId = task.ProjectId;
@@ -130,13 +159,14 @@ namespace AquaG.TasksMVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Complete(int id, int? projectId)
         {
-                if (_authorizedUser == null) return Unauthorized();
+            if (_authorizedUser == null) return Unauthorized();
 
             var task = await _db.TaskInfos.FirstOrDefaultAsync((t => t.Id == id && t.User == _authorizedUser));
             if (task == null) return BadRequest();
 
             if (task.ProjectId != projectId) return BadRequest();
             task.IsCompleted = true;
+            task.EndDate = DateTime.Now;
             task.LastModidied = DateTime.Now;
             await _db.SaveChangesAsync();
 

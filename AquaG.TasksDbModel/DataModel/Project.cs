@@ -10,6 +10,7 @@ namespace AquaG.TasksDbModel
 {
     public class Project : BaseTableNext
     {
+        [Required] public string UserId { get; set; }
         [Required] public User User { get; set; }
 
 

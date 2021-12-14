@@ -3,6 +3,14 @@
     ViewData["Title"] = "Редактирование деталей проекта";
 }
 
+<div>
+    <a asp-action="Index">К списку</a>
+</div>
+<div>
+    <a asp-controller="Project" asp-action="Delete" asp-route-id="@Model.Id">Удалить проект</a>
+</div>
+
+
 <h4>@ViewData["Title"] <b>@Model.Caption</b></h4>
 <hr />
 <div class="row">
@@ -29,9 +37,6 @@
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">К списку</a>
-</div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

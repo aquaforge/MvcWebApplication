@@ -11,6 +11,7 @@ namespace AquaG.TasksDbModel
     public class TaskInfo : BaseTableNext
     {
 
+        [Required] public string UserId { get; set; }
         [Required] public User User { get; set; }
 
         public int? ProjectId { get; set; }

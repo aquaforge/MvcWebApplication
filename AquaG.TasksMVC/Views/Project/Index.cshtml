@@ -5,9 +5,23 @@
     ViewData["Title"] = "Проекты и задачи";
 }
 <table>
-    <tr><td colspan="2" align="left"><h5>Входящие задачи</h5></td></tr>
-    @await Html.PartialAsync(@"/Views/Task/_TaskList.cshtml", new UserAllViewModel {Projects=null,Tasks=Model.Tasks})
+    <tr><td colspan="2" align="left">
 
+        <form asp-controller="Task" asp-action="Edit" asp-antiforgery="true">
+            <div class="form-group">
+                <input id="Caption" name="Caption" class="form-control" />
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+
+        </td></tr>
+
+
+
+    <tr><td colspan="2" align="left"><h5>Входящие задачи</h5></td></tr>
+    @await Html.PartialAsync(@"/Views/Task/_TaskList.cshtml", Model)
     <tr><td colspan="2" align="left"><br><br><h5>Проекты</h5></td></tr>
 
     @foreach (var item in Model.Projects)
