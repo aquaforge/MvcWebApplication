@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Rewrite;
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
 
 namespace AquaG.TasksMVC
 {
@@ -87,6 +89,22 @@ namespace AquaG.TasksMVC
             app.UseRewriter(new RewriteOptions().AddRedirect("(.*)/$", "$1"));
 
             app.UseHttpsRedirection();
+
+            //var supportedCultures = new[]
+            //{
+            //    new CultureInfo("ru-RU"),
+            //    new CultureInfo("ru"),
+            //    new CultureInfo("en-US"),
+            //    new CultureInfo("en-GB"),
+            //    new CultureInfo("en"),
+            //};
+            //app.UseRequestLocalization(new RequestLocalizationOptions
+            //{
+            //    DefaultRequestCulture = new RequestCulture("ru-RU"),
+            //    SupportedCultures = supportedCultures,
+            //    SupportedUICultures = supportedCultures
+            //});
+
             app.UseStaticFiles();
 
             app.UseRouting();

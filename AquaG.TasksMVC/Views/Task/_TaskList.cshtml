@@ -13,9 +13,14 @@
             {
                 <a href="/Task/Edit/@item.Id">@item.Caption</a>
             }
-            <br>&nbsp;<hr>
+            <br>
+            @if (item.EndDate != null)
+            {
+                @item.EndDate.ToTextHtml()
+            }
+            <hr>
         </td>
-        <td align="right">
+        <td align="right">&nbsp;&nbsp;
             @if (!item.IsCompleted)
             {
                 @if (Model.ProjectId !=null)
@@ -27,14 +32,7 @@
                     <a href="/Task/Complete/@item.Id">Завершить</a>
                 }
             }
-            <br>&nbsp;
-            @if (item.EndDate != null)
-            {
-                @item.EndDate?.ToShortDateString()
-                @:&nbsp;
-                @item.EndDate?.ToShortTimeString()
-            }
-            <hr>
+            <br>&nbsp;<hr>
         </td>
     </tr>
 }

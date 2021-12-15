@@ -45,8 +45,6 @@ namespace AquaG.TasksMVC.Controllers
                     _userManager.UpdateAsync(_authorizedUser);
                 }
             }
-
-
             base.OnActionExecuting(context);
         }
 
@@ -68,22 +66,6 @@ namespace AquaG.TasksMVC.Controllers
             else
                 return View(viewName, func.Invoke(t));
         }
-
-
-
-        //protected async Task<TOutput> GetOneRecordFromDb<TSource, TOutput>(
-        //    System.Linq.IQueryable<TSource> source,
-        //    System.Linq.Expressions.Expression<Func<TSource, bool>> predicate,
-        //    GetViewModelFromOneRecord<TOutput, TSource> func)
-        //{
-        //    if (_authorizedUser == null) throw new ArgumentException("GetOneRecordFromDb");
-
-        //    TSource t = await source.FirstOrDefaultAsync(predicate);
-        //    if (t == null) throw new ArgumentException("GetOneRecordFromDb");  
-
-        //    return func.Invoke(t);
-        //}
-
 
 
         [NonAction]
