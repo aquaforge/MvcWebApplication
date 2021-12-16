@@ -36,11 +36,18 @@ namespace AquaG.TasksMVC.Middleware
         {
             if (formatter != null)
             {
-                lock (_lock)
+                try
                 {
-                    string text = $"<br>{string.Format("{0:HH:mm:ss}", DateTime.Now)} {formatter(state, exception)}{Environment.NewLine}";
-                    string filePath = Path.Combine(fileDir, string.Format(@"{0:yyyy-MM-dd-HH}", DateTime.Now) + ".log");
-                    File.AppendAllText(filePath, text);
+                    lock (_lock)
+                    {
+                        string text = $"<br>{string.Format("{0:HH:mm:ss}", DateTime.Now)} {formatter(state, exception)}{Environment.NewLine}";
+                        string filePath = Path.Combine(fileDir, string.Format(@"{0:yyyy-MM-dd-HH}", DateTime.Now) + ".log");
+                        File.AppendAllText(filePath, text);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"GeneralFileLogger.Log: {ex.Message}");
                 }
             }
         }

@@ -34,115 +34,110 @@ namespace AquaG.TasksMVC
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContextFactory<TasksDbContext>(
-                options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
-                );
+            try
+            {
+                services.AddDbContextFactory<TasksDbContext>(
+                    options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
+                    );
+                //services.AddDbContext<TasksDbContext>(
+                //    options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
+                //    );
 
-            //services.AddDbContext<TasksDbContext>(
-            //    options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
-            //    );
+                services.AddIdentity<User, IdentityRole>(opts =>
+               {
+                   opts.User.RequireUniqueEmail = true;
+                   opts.Password.RequiredLength = 3;
+                   opts.Password.RequireNonAlphanumeric = false;
+                   opts.Password.RequireLowercase = false;
+                   opts.Password.RequireUppercase = false;
+                   opts.Password.RequireDigit = false;
+                   opts.SignIn.RequireConfirmedAccount = false;
+               })
+                    .AddEntityFrameworkStores<TasksDbContext>();
 
-            //services.ConfigureApplicationCookie(options =>
-            //{
-            //    //options.Cookie.Name = "CookieName";
-            //    options.ExpireTimeSpan = TimeSpan.FromDays(30);
-            //    options.SlidingExpiration = true;
-            //});
+                services.AddDistributedMemoryCache();
+                services.AddSession();
 
-            services.AddIdentity<User, IdentityRole>(opts =>
-           {
-               opts.User.RequireUniqueEmail = true;
-               opts.Password.RequiredLength = 3;
-               opts.Password.RequireNonAlphanumeric = false;
-               opts.Password.RequireLowercase = false;
-               opts.Password.RequireUppercase = false;
-               opts.Password.RequireDigit = false;
-               opts.SignIn.RequireConfirmedAccount = false;
-           })
-                .AddEntityFrameworkStores<TasksDbContext>();
+                services.AddHttpContextAccessor();
 
-            services.AddDistributedMemoryCache();
-            services.AddSession();
+                services.AddControllersWithViews();
+                services.AddControllers();
 
-            services.AddHttpContextAccessor();
-
-            services.AddControllersWithViews();
-            services.AddControllers();
+            }
+            catch (Exception ex)
+            {
+                GeneralFileLogger.Log($"StartUp.ConfigureServices: {ex.Message}");
+            }
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
-
-            loggerFactory.AddFile("");
-
-            if (env.IsDevelopment())
-                app.UseDeveloperExceptionPage();
-            else
+            try
             {
+                loggerFactory.AddFile("");
 
-                app.UseHsts();
-                app.UseHttpsRedirection();
-
-                //app.UseDeveloperExceptionPage();
-                app.UseExceptionHandler("/Home/Error");
-            }
-
-            app.UseRewriter(new RewriteOptions().AddRedirect("(.*)/$", "$1"));
-
-
-            //var supportedCultures = new[]
-            //{
-            //    new CultureInfo("ru-RU"),
-            //    new CultureInfo("ru"),
-            //    new CultureInfo("en-US"),
-            //    new CultureInfo("en-GB"),
-            //    new CultureInfo("en"),
-            //};
-            //app.UseRequestLocalization(new RequestLocalizationOptions
-            //{
-            //    DefaultRequestCulture = new RequestCulture("ru-RU"),
-            //    SupportedCultures = supportedCultures,
-            //    SupportedUICultures = supportedCultures
-            //});
-
-            app.UseStaticFiles();
-
-            app.UseRouting();
-
-            app.UseAuthentication();
-            app.UseAuthorization();
-
-            //app.UseSession();
-
-
-            app.Use(async (context, next) =>
-            {
-                await next();
-
-                int statusCode = context.Response.StatusCode;
-                if (!context.Response.HasStarted && (statusCode == 400 || statusCode == 401 || statusCode == 404))
+                if (env.IsDevelopment())
+                    app.UseDeveloperExceptionPage();
+                else
                 {
-                    context.Items["originalPath"] = context.Request.Path.Value;
-                    context.Request.Path = $"/Home/Error/{statusCode}";
-                    await next();
+
+                    app.UseHsts();
+                    app.UseHttpsRedirection();
+                    app.UseExceptionHandler("/Home/Error");
                 }
 
-            });
+                app.UseRewriter(new RewriteOptions().AddRedirect("(.*)/$", "$1"));
 
-            app.UseEndpoints(endpoints =>
+                #region Localization
+                var supportedCultures = new[]
+                {
+                new CultureInfo("ru-RU"),
+                new CultureInfo("ru"),
+                new CultureInfo("en-US"),
+                new CultureInfo("en-GB"),
+                new CultureInfo("en")};
+
+                app.UseRequestLocalization(new RequestLocalizationOptions
+                {
+                    DefaultRequestCulture = new RequestCulture("ru-RU"),
+                    SupportedCultures = supportedCultures,
+                    SupportedUICultures = supportedCultures
+                });
+                #endregion //Localization
+
+                app.UseStaticFiles();
+
+                app.UseRouting();
+
+                app.UseAuthentication();
+                app.UseAuthorization();
+
+                app.Use(async (context, next) =>
+                {
+                    await next();
+
+                    int statusCode = context.Response.StatusCode;
+                    if (!context.Response.HasStarted && (statusCode == 400 || statusCode == 401 || statusCode == 404))
+                    {
+                        context.Items["originalPath"] = context.Request.Path.Value;
+                        context.Request.Path = $"/Home/Error/{statusCode}";
+                        await next();
+                    }
+
+                });
+
+                app.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapControllerRoute(
+                        name: "default",
+                        pattern: "{controller=Home}/{action=Index}/{id?}"); //.RequireHost("localhost:5001", "sub.domain.com");
+
+                });
+            }
+            catch (Exception ex)
             {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
-            });
+                GeneralFileLogger.Log($"StartUp.Configure: {ex.Message}");
+            }
         }
     }
 }
-
-/*
-     endpoints.MapAreaControllerRoute(
-                name: "Home",
-                areaName: "Home",
-                pattern: "{controller=Home}/{action=Index}")
-             .RequireHost("localhost:5001", "sub.domain.com");
- * */

@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AquaG.TasksMVC.Middleware;
 
 namespace AquaG.TasksMVC
 {
@@ -30,6 +31,8 @@ namespace AquaG.TasksMVC
                 }
                 catch (Exception ex)
                 {
+                    GeneralFileLogger.Log($"Program.Main: {ex.Message}");
+
                     var logger = services.GetRequiredService<ILogger<Program>>();
                     logger.LogError(ex, "Ошибка инициализации базы данных");
                 }
