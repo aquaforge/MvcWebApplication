@@ -35,10 +35,7 @@ namespace AquaG.TasksMVC.Controllers
 {
     public class TaskController : BaseController
     {
-        public TaskController() : base()
-        {
-        }
-
+        public TaskController() : base() { }
 
         public static TaskModel GetTaskModelFromDbModel(TaskInfo task)
         {
@@ -63,8 +60,7 @@ namespace AquaG.TasksMVC.Controllers
         private void UpdateDbModelTask(TaskInfo task, TaskModel model)
         {
             if (task.Id != model.Id) throw new ArgumentException("обновление не той задачи");
-            if (task.UserId != _authorizedUser.Id)
-                throw new ArgumentException("другой пользователь");
+            if (task.UserId != _authorizedUser.Id) throw new ArgumentException("другой пользователь");
 
             task.ProjectId = model.ProjectId;
             task.Caption = model.Caption;
@@ -80,6 +76,8 @@ namespace AquaG.TasksMVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id, int? projectId)
         {
+            if (!await IsUserAuthorizedAsync()) return Unauthorized();
+
             if (id == 0)
                 return View(new TaskModel() { ProjectId = projectId });
 
@@ -94,8 +92,8 @@ namespace AquaG.TasksMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Caption,Description,ProjectId,StartDate,EndDate,IsCompleted")] TaskModel model)
         {
+            if (!await IsUserAuthorizedAsync()) return Unauthorized();
             if (id != model.Id) return BadRequest();
-            if (_authorizedUser == null) return Unauthorized();
 
             if (ModelState.IsValid)
             {
@@ -128,6 +126,8 @@ namespace AquaG.TasksMVC.Controllers
         // GET: Task/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
+            if (!await IsUserAuthorizedAsync()) return Unauthorized();
+
             return await GetOneRecordFromDbAsActionResult<TaskInfo, TaskModel>(
                 _db.TaskInfos,
                 (t => t.Id == id && t.User == _authorizedUser),
@@ -139,7 +139,7 @@ namespace AquaG.TasksMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_authorizedUser == null) return Unauthorized();
+            if (!await IsUserAuthorizedAsync()) return Unauthorized();
 
             var task = await _db.TaskInfos
                 .Include(t => t.User)
@@ -159,7 +159,7 @@ namespace AquaG.TasksMVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Complete(int id, int? projectId)
         {
-            if (_authorizedUser == null) return Unauthorized();
+            if (!await IsUserAuthorizedAsync()) return Unauthorized();
 
             var task = await _db.TaskInfos.FirstOrDefaultAsync((t => t.Id == id && t.User == _authorizedUser));
             if (task == null) return BadRequest();

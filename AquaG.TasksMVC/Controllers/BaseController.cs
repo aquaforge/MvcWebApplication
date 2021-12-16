@@ -17,34 +17,55 @@ using System;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace AquaG.TasksMVC.Controllers
 {
     public class BaseController : Controller
     {
+        protected IDbContextFactory<TasksDbContext> _dbContextFactory;
         protected TasksDbContext _db;
+
         protected UserManager<User> _userManager;
         protected SignInManager<User> _signInManager;
         protected ILogger<BaseController> _logger;
 
         protected User _authorizedUser;
 
+        public BaseController() { }
+
+
+        protected async Task<bool> IsUserAuthorizedAsync()
+        {
+            if (_authorizedUser != null)
+                return true;
+
+            if (!User.Identity.IsAuthenticated)
+                return false;
+
+            _authorizedUser = await _userManager.FindByEmailAsync(User.Identity.Name);
+            if (_authorizedUser == null)
+                return false;
+
+            _logger.LogInformation($"Processing request {HttpContext.Request.GetDisplayUrl()} User: {_authorizedUser?.UserName}");
+
+            _authorizedUser.LastAccess = DateTime.Now;
+            await _userManager.UpdateAsync(_authorizedUser);
+            return true;
+        }
+
+
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            _db = HttpContext.RequestServices.GetRequiredService<TasksDbContext>();
+            _logger = HttpContext.RequestServices.GetRequiredService<ILogger<BaseController>>();
+            _logger.LogInformation($"Processing request {HttpContext.Request.GetDisplayUrl()}");
+
+            _dbContextFactory = HttpContext.RequestServices.GetRequiredService<IDbContextFactory<TasksDbContext>>();
+            _db = _dbContextFactory.CreateDbContext();
+
             _userManager = HttpContext.RequestServices.GetRequiredService<UserManager<User>>();
             _signInManager = HttpContext.RequestServices.GetRequiredService<SignInManager<User>>();
-            _logger = HttpContext.RequestServices.GetRequiredService<ILogger<BaseController>>();
 
-            if (User.Identity.IsAuthenticated)
-            {
-                _authorizedUser = _userManager.FindByEmailAsync(User.Identity.Name).GetAwaiter().GetResult();
-                if (_authorizedUser != null)
-                {
-                    _authorizedUser.LastAccess = DateTime.Now;
-                    _userManager.UpdateAsync(_authorizedUser);
-                }
-            }
             base.OnActionExecuting(context);
         }
 
@@ -68,7 +89,6 @@ namespace AquaG.TasksMVC.Controllers
         }
 
 
-        [NonAction]
         public override RedirectResult Redirect(string url)
         {
             // Редирект только внутри сайта
@@ -76,7 +96,7 @@ namespace AquaG.TasksMVC.Controllers
             return base.Redirect(url);
         }
 
-        public bool IsMobileBrowser()
+        protected bool IsMobileBrowser()
         {
             string u = Request.Headers["User-Agent"].ToString();
             var b = new Regex(@"(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino", RegexOptions.IgnoreCase | RegexOptions.Multiline);

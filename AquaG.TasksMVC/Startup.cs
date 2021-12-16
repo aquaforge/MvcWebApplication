@@ -16,6 +16,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Rewrite;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
+using AquaG.TasksMVC.Middleware;
+
 
 namespace AquaG.TasksMVC
 {
@@ -32,9 +34,13 @@ namespace AquaG.TasksMVC
 
         public void ConfigureServices(IServiceCollection services)
         {
-            string connection = Configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<TasksDbContext>(options => options.UseSqlServer(connection), ServiceLifetime.Transient);
+            services.AddDbContextFactory<TasksDbContext>(
+                options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
+                );
 
+            //services.AddDbContext<TasksDbContext>(
+            //    options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
+            //    );
 
             //services.ConfigureApplicationCookie(options =>
             //{
@@ -64,31 +70,25 @@ namespace AquaG.TasksMVC
             services.AddControllers();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
 
-            app.Use(async (context, next) =>
-            {
-                await next();
-
-                int statusCode = context.Response.StatusCode;
-                if (!context.Response.HasStarted && (statusCode == 400 || statusCode == 401 || statusCode == 404))
-                {
-                    context.Items["originalPath"] = context.Request.Path.Value;
-                    context.Request.Path = $"/Home/Error/{statusCode}";
-                    await next();
-                }
-
-            });
+            loggerFactory.AddFile("");
 
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
             else
+            {
+
+                app.UseHsts();
+                app.UseHttpsRedirection();
+
+                //app.UseDeveloperExceptionPage();
                 app.UseExceptionHandler("/Home/Error");
+            }
 
             app.UseRewriter(new RewriteOptions().AddRedirect("(.*)/$", "$1"));
 
-            app.UseHttpsRedirection();
 
             //var supportedCultures = new[]
             //{
@@ -114,6 +114,21 @@ namespace AquaG.TasksMVC
 
             //app.UseSession();
 
+
+            app.Use(async (context, next) =>
+            {
+                await next();
+
+                int statusCode = context.Response.StatusCode;
+                if (!context.Response.HasStarted && (statusCode == 400 || statusCode == 401 || statusCode == 404))
+                {
+                    context.Items["originalPath"] = context.Request.Path.Value;
+                    context.Request.Path = $"/Home/Error/{statusCode}";
+                    await next();
+                }
+
+            });
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
@@ -123,3 +138,11 @@ namespace AquaG.TasksMVC
         }
     }
 }
+
+/*
+     endpoints.MapAreaControllerRoute(
+                name: "Home",
+                areaName: "Home",
+                pattern: "{controller=Home}/{action=Index}")
+             .RequireHost("localhost:5001", "sub.domain.com");
+ * */

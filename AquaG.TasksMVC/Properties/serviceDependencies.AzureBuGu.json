@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "mssql1": {
+      "secretStore": "AzureAppSettings",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/bygu-server/databases/bygu-mssql",
+      "type": "mssql.azure",
+      "connectionId": "ConnectionStrings:AquaGTasksMVCContext"
+    }
+  }
+}

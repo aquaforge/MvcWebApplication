@@ -52,18 +52,16 @@ namespace AquaG.TasksMVC.Controllers
         [Route("Project")]
         [Route("Project/{id?}")]
         [HttpGet]
-        public IActionResult Index(int? id)
+        public async Task<IActionResult> Index(int? id)
         {
-            if (_authorizedUser == null) return Unauthorized();
+            if (!await IsUserAuthorizedAsync()) return Unauthorized();
 
-
-
-            var projects = _db.Projects
+            var projects = await _db.Projects
             .Where(p => p.User == _authorizedUser && (p.Id == id || id == null))
             .Include(p => p.TaskInfos.Where(t => !t.IsCompleted))
             .AsNoTracking()
             .OrderByDescending(p => p.LastModidied)
-            .ToList();
+            .ToListAsync();
 
             if (id != null && (projects == null || projects.Count == 0)) return BadRequest();
 
@@ -75,11 +73,11 @@ namespace AquaG.TasksMVC.Controllers
                 projectModels.Add(GetProjectModelFromDbModel(p));
 
 
-            var taskinfos = _db.TaskInfos
+            var taskinfos = await _db.TaskInfos
                 .Where(t => t.User == _authorizedUser && t.ProjectId == id)
                 .AsNoTracking()
                 .OrderByDescending(t => t.LastModidied)
-                .ToList();
+                .ToListAsync();
             foreach (var t in taskinfos)
             {
                 if (t.IsCompleted)
@@ -102,6 +100,8 @@ namespace AquaG.TasksMVC.Controllers
         [Route("Project/Edit/{id?}")]
         public async Task<IActionResult> Edit(int? id)
         {
+            if (!await IsUserAuthorizedAsync()) return Unauthorized();
+
             ProjectModel m = new();
 
             if (id.GetValueOrDefault() == 0)
@@ -117,9 +117,8 @@ namespace AquaG.TasksMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Caption,Description")] ProjectModel model)
         {
+            if (!await IsUserAuthorizedAsync()) return Unauthorized();
             if (id != model.Id) return BadRequest();
-            if (_authorizedUser == null) return Unauthorized();
-
 
             if (ModelState.IsValid)
             {
@@ -150,6 +149,8 @@ namespace AquaG.TasksMVC.Controllers
         // GET: Project/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
+            if (!await IsUserAuthorizedAsync()) return Unauthorized();
+
             return await GetOneRecordFromDbAsActionResult<Project, ProjectModel>(
                 _db.Projects,
                 (p => p.Id == id && p.User == _authorizedUser),
@@ -161,7 +162,7 @@ namespace AquaG.TasksMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_authorizedUser == null) return Unauthorized();
+            if (!await IsUserAuthorizedAsync()) return Unauthorized();
 
             var project = await _db.Projects.FirstOrDefaultAsync((p => p.Id == id && p.User == _authorizedUser));
             if (project == null) return BadRequest();
