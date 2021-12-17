@@ -34,6 +34,8 @@ namespace AquaG.TasksMVC
 
         public void ConfigureServices(IServiceCollection services)
         {
+            GeneralFileLogger.Log($"StartUp.ConfigureServices: start");
+
             try
             {
                 services.AddDbContextFactory<TasksDbContext>(
@@ -42,6 +44,8 @@ namespace AquaG.TasksMVC
                 //services.AddDbContext<TasksDbContext>(
                 //    options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
                 //    );
+
+                GeneralFileLogger.Log($"StartUp.ConfigureServices: 1");
 
                 services.AddIdentity<User, IdentityRole>(opts =>
                {
@@ -55,14 +59,20 @@ namespace AquaG.TasksMVC
                })
                     .AddEntityFrameworkStores<TasksDbContext>();
 
+                GeneralFileLogger.Log($"StartUp.ConfigureServices: 2");
+
                 services.AddDistributedMemoryCache();
                 services.AddSession();
 
                 services.AddHttpContextAccessor();
 
+                GeneralFileLogger.Log($"StartUp.ConfigureServices: 3");
+
+
                 services.AddControllersWithViews();
                 services.AddControllers();
 
+                GeneralFileLogger.Log($"StartUp.ConfigureServices: end");
             }
             catch (Exception ex)
             {
@@ -72,6 +82,8 @@ namespace AquaG.TasksMVC
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+            GeneralFileLogger.Log($"StartUp.Configure: end");
+
             try
             {
                 loggerFactory.AddFile("");
@@ -85,6 +97,8 @@ namespace AquaG.TasksMVC
                     app.UseHttpsRedirection();
                     app.UseExceptionHandler("/Home/Error");
                 }
+                GeneralFileLogger.Log($"StartUp.Configure: 1");
+
 
                 app.UseRewriter(new RewriteOptions().AddRedirect("(.*)/$", "$1"));
 
@@ -105,12 +119,16 @@ namespace AquaG.TasksMVC
                 });
                 #endregion //Localization
 
+                GeneralFileLogger.Log($"StartUp.Configure: 2");
+
                 app.UseStaticFiles();
 
                 app.UseRouting();
 
                 app.UseAuthentication();
                 app.UseAuthorization();
+
+                GeneralFileLogger.Log($"StartUp.Configure: 3");
 
                 app.Use(async (context, next) =>
                 {
@@ -133,6 +151,7 @@ namespace AquaG.TasksMVC
                         pattern: "{controller=Home}/{action=Index}/{id?}"); //.RequireHost("localhost:5001", "sub.domain.com");
 
                 });
+                GeneralFileLogger.Log($"StartUp.Configure: end");
             }
             catch (Exception ex)
             {
