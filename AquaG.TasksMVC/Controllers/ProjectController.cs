@@ -89,6 +89,7 @@ namespace AquaG.TasksMVC.Controllers
                 Tasks = taskModels,
                 TasksCompleted = taskModelsCompleted
             });
+
         }
 
 

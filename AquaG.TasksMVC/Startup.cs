@@ -40,7 +40,9 @@ namespace AquaG.TasksMVC
             {
 
                 services.AddDbContextFactory<TasksDbContext>(
-                    options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
+                    options => {
+                        options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+                        }
                     );
                 //services.AddDbContext<TasksDbContext>(
                 //    options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))

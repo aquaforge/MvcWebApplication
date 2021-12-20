@@ -44,7 +44,6 @@ namespace AquaG.TasksDbModel
     {
         public TasksDbContext() : base()
         {
-            Console.WriteLine("A");
             //Database.EnsureCreated();
         }
 

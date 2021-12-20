@@ -28,7 +28,6 @@ namespace AquaG.TasksMVC.Middleware
 
         public bool IsEnabled(LogLevel logLevel)
         {
-            //return logLevel == LogLevel.Trace;
             return true;
         }
 
@@ -41,7 +40,7 @@ namespace AquaG.TasksMVC.Middleware
                     lock (_lock)
                     {
                         string text = $"<br>{string.Format("{0:HH:mm:ss}", DateTime.Now)} {formatter(state, exception)}{Environment.NewLine}";
-                        string filePath = Path.Combine(fileDir, string.Format(@"{0:yyyy-MM-dd-HH}", DateTime.Now) + ".log");
+                        string filePath = Path.Combine(fileDir, string.Format(@"{0:yyyy-MM-dd}", DateTime.Now) + ".log");
                         File.AppendAllText(filePath, text);
                     }
                 }
