@@ -78,6 +78,16 @@ namespace AquaG.TasksMVC.Controllers
         {
             if (!await IsUserAuthorizedAsync()) return Unauthorized();
 
+            List<ProjectDropListModel> projectsDropList = await _db.Projects
+                .Where(p => p.User == _authorizedUser)
+                .AsNoTracking()
+                .OrderByDescending(p => p.LastModidied)
+                .Select(p=> new ProjectDropListModel(p.Id,p.Caption))
+                .ToListAsync();
+            projectsDropList.Insert(0, new ProjectDropListModel(null, "--Нет проекта--"));
+
+            ViewBag.ProjectsDropList = new SelectList(projectsDropList, "Id", "Caption");
+
             if (id == 0)
                 return View(new TaskModel() { ProjectId = projectId });
 

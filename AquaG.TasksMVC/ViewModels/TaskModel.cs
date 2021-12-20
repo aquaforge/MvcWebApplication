@@ -6,7 +6,7 @@ namespace AquaG.TasksMVC.ViewModels
 {
     public class TaskModel : BaseTable
     {
-        public int? ProjectId { get; set; }
+        [Display(Name = "Проект")] public int? ProjectId { get; set; }
 
         [Display(Name = "Дата начала")] public DateTime? StartDate { get; set; }
 
