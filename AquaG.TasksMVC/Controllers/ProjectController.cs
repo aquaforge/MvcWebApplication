@@ -1,14 +1,12 @@
-﻿using System;
+﻿using AquaG.TasksDbModel;
+using AquaG.TasksMVC.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using AquaG.TasksDbModel;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using AquaG.TasksMVC.ViewModels;
 
 namespace AquaG.TasksMVC.Controllers
 {
@@ -46,8 +44,6 @@ namespace AquaG.TasksMVC.Controllers
             p.Description = m.Description;
             p.LastModidied = DateTime.Now;
         }
-
-
 
         [Route("Project")]
         [Route("Project/{id?}")]

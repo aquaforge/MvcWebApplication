@@ -38,6 +38,7 @@ namespace AquaG.TasksMVC
 
             try
             {
+
                 services.AddDbContextFactory<TasksDbContext>(
                     options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
                     );
@@ -82,7 +83,7 @@ namespace AquaG.TasksMVC
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
-            GeneralFileLogger.Log($"StartUp.Configure: end");
+            GeneralFileLogger.Log($"StartUp.Configure: start");
 
             try
             {
@@ -111,12 +112,30 @@ namespace AquaG.TasksMVC
                 new CultureInfo("en-GB"),
                 new CultureInfo("en")};
 
-                app.UseRequestLocalization(new RequestLocalizationOptions
+                var localizationOptions = new RequestLocalizationOptions
                 {
                     DefaultRequestCulture = new RequestCulture("ru-RU"),
                     SupportedCultures = supportedCultures,
                     SupportedUICultures = supportedCultures
-                });
+                };
+                localizationOptions.RequestCultureProviders.Insert(0, new CustomRequestCultureProvider(context =>
+                {
+                    try
+                    {
+                        string lang = context.Request.Headers["Accept-Language"].ToString().Split(',')[0];
+                        foreach (var culture in supportedCultures)
+                        {
+                            if (culture.Name.Equals(lang, StringComparison.OrdinalIgnoreCase))
+                                return Task.FromResult(new ProviderCultureResult(lang));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        GeneralFileLogger.Log($"StartUp.ConfigureServices.CustomRequestCultureProvider: {ex.Message}");
+                    }
+                    return Task.FromResult(new ProviderCultureResult("ru"));
+                }));
+                app.UseRequestLocalization(localizationOptions);
                 #endregion //Localization
 
                 GeneralFileLogger.Log($"StartUp.Configure: 2");

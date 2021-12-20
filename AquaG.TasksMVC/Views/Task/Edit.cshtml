@@ -33,7 +33,8 @@
             </div>
             <div class="form-group">
                 <label asp-for="StartDate" class="control-label"></label>
-                <input type="datetime" asp-for="StartDate" class="form-control" />
+                <input type="datetime" id="StartDate" name="StartDate"  class="form-control" 
+                value="@Model.StartDate.ToHtmlForm()" placeholder="@DateTimeForCulture.HtmlFormDateTimeFormatString" />
                 <span asp-validation-for="StartDate" class="text-danger"></span>
             </div>
             <div class="form-group">

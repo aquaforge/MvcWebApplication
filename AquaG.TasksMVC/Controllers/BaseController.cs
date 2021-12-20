@@ -1,24 +1,18 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using AquaG.TasksMVC.Models;
-using AquaG.TasksMVC.ViewModels;
-using Microsoft.Extensions.DependencyInjection;
-using System.Net;
-using AquaG.TasksDbModel;
+﻿using AquaG.TasksDbModel;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
-using System.Diagnostics;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Filters;
+using System.Globalization;
 using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.Data.SqlClient;
+using System.Threading.Tasks;
 
 namespace AquaG.TasksMVC.Controllers
 {
@@ -53,9 +47,11 @@ namespace AquaG.TasksMVC.Controllers
             return true;
         }
 
-
+        [NonAction]
         public override void OnActionExecuting(ActionExecutingContext context)
         {
+            base.OnActionExecuting(context);
+
             _logger = HttpContext.RequestServices.GetRequiredService<ILogger<BaseController>>();
             _logger.LogInformation($"Processing request {HttpContext.Request.GetDisplayUrl()}");
 
@@ -68,8 +64,6 @@ namespace AquaG.TasksMVC.Controllers
 
             _userManager = HttpContext.RequestServices.GetRequiredService<UserManager<User>>();
             _signInManager = HttpContext.RequestServices.GetRequiredService<SignInManager<User>>();
-
-            base.OnActionExecuting(context);
         }
 
         protected delegate TOutput GetViewModelFromOneRecord<TOutput, TSource>(TSource val);
@@ -92,6 +86,7 @@ namespace AquaG.TasksMVC.Controllers
         }
 
 
+        [NonAction]
         public override RedirectResult Redirect(string url)
         {
             // Редирект только внутри сайта
@@ -116,8 +111,8 @@ namespace AquaG.TasksMVC.Controllers
             catch (SqlException ex)
             {
                 _logger.LogError("Database NOT Available", ex.Message);
-                return false;
             }
+            return false;
         }
 
     }

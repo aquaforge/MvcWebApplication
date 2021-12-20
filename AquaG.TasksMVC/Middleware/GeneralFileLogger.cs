@@ -14,7 +14,7 @@ namespace AquaG.TasksMVC.Middleware
             {
                 lock (_lock)
                 {
-                    string text = $"<br>{string.Format("{0:HH:mm:ss}", DateTime.Now)} {logText}{Environment.NewLine}";
+                    string text = $"<br>{string.Format("{0:yyyy-MM-dd HH:mm:ss}", DateTime.Now)} {logText}{Environment.NewLine}";
                     string filePath = Path.Combine(Directory.GetCurrentDirectory(), "_error_.log");
                     File.AppendAllText(filePath, text);
                 }
