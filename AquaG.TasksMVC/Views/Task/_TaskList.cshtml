@@ -5,7 +5,7 @@
 {
     <tr>
         <td align="left">
-            @if (Model.ProjectId !=null)
+            @if (Model.ProjectId != null)
             {
                 <a href="/Task/Edit/@item.Id?ProjectId=@Model.ProjectId">@item.Caption</a>
             }
@@ -13,17 +13,14 @@
             {
                 <a href="/Task/Edit/@item.Id">@item.Caption</a>
             }
-            <br>&nbsp;
-            @if (item.EndDate != null)
-            {
-                @item.EndDate.ToTextHtml()
-            }
+            <br>&nbsp;@item.EndDate.ToHtmlText()
             <hr>
         </td>
-        <td align="right">&nbsp;&nbsp;
+        <td align="right">
+            &nbsp;&nbsp;
             @if (!item.IsCompleted)
             {
-                @if (Model.ProjectId !=null)
+                @if (Model.ProjectId != null)
                 {
                     <a href="/Task/Complete/@item.Id?ProjectId=@Model.ProjectId">Завершить</a>
                 }

@@ -112,7 +112,6 @@ namespace AquaG.TasksMVC.Controllers
             try
             {
                 return _db.Database.CanConnect();
-                //return false;
             }
             catch (SqlException ex)
             {

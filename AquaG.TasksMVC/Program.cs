@@ -64,7 +64,6 @@ namespace AquaG.TasksMVC
             {
                 GeneralFileLogger.Log($"Program.CreateHostBuilder: {ex.Message}");
                 throw new Exception("Program.CreateHostBuilder" ,ex);
-                return null;
             }
         }
 

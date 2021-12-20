@@ -50,9 +50,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; ByGu - 
-            @DateTimeHtmlExtention.GetNamedWeekDay(DateTime.Now),
-            @string.Format(DateTimeHtmlExtention.HtmlDateTimeFormatString, DateTime.Now)
+            &copy; ByGu - @string.Format("{0:T}", DateTime.Now)
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
