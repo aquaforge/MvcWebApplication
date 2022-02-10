@@ -40,7 +40,7 @@ db.Database.ExecuteSqlRaw(
  */
 namespace AquaG.TasksDbModel
 {
-    public class TasksDbContext : IdentityDbContext//<User, Role, int>
+    public class TasksDbContext : IdentityDbContext
     {
         public TasksDbContext() : base()
         {
@@ -67,11 +67,6 @@ namespace AquaG.TasksDbModel
             modelBuilder.Entity<Project>().HasOne(p => p.User).WithMany(u => u.Projects).OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<TaskInfo>().HasOne(t => t.Project).WithMany(p => p.TaskInfos).OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<TaskInfo>().HasOne(t => t.User).WithMany(u => u.TaskInfos).OnDelete(DeleteBehavior.Restrict);
-
-
-            //modelBuilder.Entity<User>().HasIndex(u => u.NormalizedEmail).IsUnique();
-            //modelBuilder.Entity<Project>().ToTable("Projects", t => t.IsTemporal());
-            //modelBuilder.Entity<TaskInfo>().ToTable("TaskInfos", t => t.IsTemporal());
 
             base.OnModelCreating(modelBuilder);
         }
